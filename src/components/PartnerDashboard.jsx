@@ -1,6 +1,4 @@
 import React, { useState, useMemo, useEffect } from "react";
-
-
 import { format, addDays } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
@@ -44,7 +42,8 @@ import useScreenSize from "../hooks/useScreenSize";
 const server_url = import.meta.env.VITE_SERVER_URL;
 const local_url = "http://localhost:3000/";
 
-const toggleSidebar = () => {
+// Moved toggleSidebar function outside component
+const toggleSidebar = (setSidebarVisible, sidebarVisible) => {
   setSidebarVisible(!sidebarVisible);
 };
 
@@ -131,11 +130,9 @@ const categorizedSymptoms = {
   ],
   "Other Clues": ["Diagnostic Clues (Not Symptoms, but Relevant)"],
 };
-const symptomSeverityOptions = ["None", "Mild", "Moderate", "Severe"];
 
+const symptomSeverityOptions = ["None", "Mild", "Moderate", "Severe"];
 const sleepQualityOptions = ["Poor", "Fair", "Good", "Excellent"];
-const genAI = new GoogleGenerativeAI("AIzaSyCVVlEYtXdMfjlKkNaUbz88rNo1wR_dPJs");
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 const symptomSeverityMapping = {
   severe: { value: 100, color: "#ec4899" },
@@ -649,7 +646,7 @@ const AnalysisSummaryChart = ({ pcosReport }) => {
                 <div className="p-3 border-b border-gray-100 dark:border-gray-600">
                   <div className="flex items-start justify-between gap-3">
                     <h5 className="font-medium text-gray-900 dark:text-gray-100 text-sm">
-
+                      {finding.symptom}
                     </h5>
                     <span
                       className="px-2.5 py-0.5 rounded-full text-xs font-medium flex-shrink-0 whitespace-nowrap"
@@ -729,6 +726,18 @@ export function Diagnosis() {
   });
   const [recommendations, setRecommendations] = useState([]);
   const [showTooltips, setShowTooltips] = useState(true);
+
+  // Initialize Google AI only when needed
+  const [genAI, setGenAI] = useState(null);
+  
+  useEffect(() => {
+    // Initialize Google AI only if API key is available
+    const apiKey = "AIzaSyCVVlEYtXdMfjlKkNaUbz88rNo1wR_dPJs";
+    if (apiKey) {
+      const googleAI = new GoogleGenerativeAI(apiKey);
+      setGenAI(googleAI);
+    }
+  }, []);
 
   useEffect(() => {
     if (pcosReport) {
@@ -842,12 +851,11 @@ export function Diagnosis() {
   };
 
   const handleSymptomDateChange = (symptom, date) => {
-  setSymptomDates((prevDates) => ({
-    ...prevDates,
-    [symptom]: date,
-  }));
-};
-
+    setSymptomDates((prevDates) => ({
+      ...prevDates,
+      [symptom]: date,
+    }));
+  };
 
   const predictNextPeriod = () => {
     if (lastPeriodStart && cycleDuration) {
@@ -862,6 +870,11 @@ export function Diagnosis() {
   const handleSubmit = async () => {
     if (symptoms.length === 0) {
       setError("Please select at least one symptom");
+      return;
+    }
+
+    if (!genAI) {
+      setError("AI service is not available. Please try again later.");
       return;
     }
 
@@ -900,6 +913,7 @@ Risk Level: [Low/Moderate/High]
 ## Action Steps
 [Provide immediate action steps]`;
 
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
       const result = await model.generateContent(prompt);
       const response = await result.response;
       const analysisText = response.text();
@@ -996,10 +1010,6 @@ Risk Level: [Low/Moderate/High]
         moods: [],
       };
     }
-  };
-
-  const toggleSidebar = () => {
-    setSidebarVisible(!sidebarVisible);
   };
 
   const toggleSection = (section) => {
@@ -1147,7 +1157,7 @@ Risk Level: [Low/Moderate/High]
       />
       {width > 816 && (
         <button
-          onClick={toggleSidebar}
+          onClick={() => toggleSidebar(setSidebarVisible, sidebarVisible)}
           className="fixed left-0 top-0 w-10 z-10 p-2 bg-pink-600 text-white rounded-r-md  transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50"
           style={{
             transform: sidebarVisible ? "translateX(256px)" : "translateX(0)",
@@ -1228,95 +1238,56 @@ Risk Level: [Low/Moderate/High]
                             ))}
                           </div>
                         </div>
-
                       )
                     )}
                   </div>
                 </div>
 
-              {/*{symptoms.map((symptom) => (
-                  <div key={symptom} className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {symptom} Severity
-                    </label>
-                    <select
-                      value={symptomSeverities[symptom] || ""}
-                      onChange={(e) =>
-                        handleSymptomSeverityChange(symptom, e.target.value)
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300 dark:bg-gray-700 text-white"
-                    >
-                      <option value="">Select Severity</option>
-                      {symptomSeverityOptions.map((severity) => (
-                        <option key={severity} value={severity}>
-                          {severity}
-                        </option>
-                      ))}
-                    </select>
+                {symptoms.map((symptom) => (
+                  <div key={symptom} className="space-y-4">
+                    {/* Symptom severity */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {symptom} Severity
+                      </label>
+                      <select
+                        value={symptomSeverities[symptom] || ""}
+                        onChange={(e) =>
+                          handleSymptomSeverityChange(symptom, e.target.value)
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300 dark:bg-gray-700 text-white"
+                      >
+                        <option value="">Select Severity</option>
+                        {symptomSeverityOptions.map((severity) => (
+                          <option key={severity} value={severity}>
+                            {severity}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Symptom date */}
+                    <div>
+                      <label className="block text-sm font-medium text-white-700 dark:text-gray-300">
+                        Date of {symptom}
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="date"
+                          value={symptomDates[symptom] || ""}
+                          onChange={(e) =>
+                            handleSymptomDateChange(symptom, e.target.value)
+                          }
+                          className="text-white w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300 dark:bg-gray-700 dark:text-white"
+                        />
+                        <Calendar className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                      </div>
+                    </div>
                   </div>
                 ))}
-
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-white-700 dark:text-gray-300">
-                    Date of Symptoms
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="date"
-                      name="symptomDate"
-                      value={symptomDate}
-                      onChange={handleInputChange}
-                      className="text-black w-full pl-10 pr-3 py-2 border bg-white border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300 dark:bg-gray-900 dark:text-white"
-                    />
-                    <Calendar className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-                  </div>
-                </div>
-              </div>,*/}
-              {symptoms.map((symptom) => (
-  <div key={symptom} className="space-y-4">
-    {/* Symptom severity */}
-    <div>
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-        {symptom} Severity
-      </label>
-      <select
-        value={symptomSeverities[symptom] || ""}
-        onChange={(e) =>
-          handleSymptomSeverityChange(symptom, e.target.value)
-        }
-        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300 dark:bg-gray-700 text-white"
-      >
-        <option value="">Select Severity</option>
-        {symptomSeverityOptions.map((severity) => (
-          <option key={severity} value={severity}>
-            {severity}
-          </option>
-        ))}
-      </select>
-    </div>
-
-    {/* Symptom date */}
-    <div>
-      <label className="block text-sm font-medium text-white-700 dark:text-gray-300">
-        Date of {symptom}
-      </label>
-      <div className="relative">
-        <input
-          type="date"
-          value={symptomDates[symptom] || ""}
-          onChange={(e) =>
-            handleSymptomDateChange(symptom, e.target.value)
-          }
-          className="text-white w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300 dark:bg-gray-700 dark:text-white"
-        />
-        <Calendar className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-      </div>
-    </div>
-  </div>
-))}
-  </div>,
-  "symptomTracking" // ✅ this was missing!
-)}
+              </div>,
+              "symptomTracking"
+            )}
 
             {isLoading ? (
               <div className="text-center py-4">

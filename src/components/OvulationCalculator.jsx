@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { addDays, format } from "date-fns";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Sun, Moon } from "lucide-react";
 import SideBar from "./SideBar";
-import OvulationImg from '../../public/ovulationsecimg.png';
+import OvulationImg from "../../public/ovulationsecimg.png";
 import useScreenSize from "../hooks/useScreenSize";
+import { useTheme } from "../context/ThemeContext";
 
 const OvulationCalculator = () => {
   const [sidebarVisible, setSidebarVisible] = useState(true);
@@ -11,33 +12,19 @@ const OvulationCalculator = () => {
   const [gestationInfo, setGestationInfo] = useState(null);
   const [cycleLength, setCycleLength] = useState(28);
   const [results, setResults] = useState(null);
-  const [darkMode, setDarkMode] = useState(false);
 
-  // New features
   const [lutealPhase, setLutealPhase] = useState(14);
   const [showDetails, setShowDetails] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const resultsRef = useRef(null);
 
   const { width } = useScreenSize();
+  const { theme, toggleTheme } = useTheme();
 
   const toggleSidebar = () => {
     setSidebarVisible((prev) => !prev);
   };
 
-  const toggleDarkMode = () => {
-    setDarkMode((prev) => !prev);
-  };
-
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [darkMode]);
-
-  // Scroll to results when calculated
   useEffect(() => {
     if (resultsRef.current && results) {
       resultsRef.current.scrollIntoView({ behavior: "smooth" });
@@ -114,7 +101,10 @@ ${gestationInfo ? `Gestational Age: ${gestationInfo.gestationalAge}, Due Date: $
     setGestationInfo({
       gestationalAge: `${gestationalWeeks} weeks and ${gestationalDays} days`,
       dueDate: format(dueDate, "EEE MMM dd yyyy"),
-      firstTrimester: `${format(start, "EEE MMM dd yyyy")} – ${format(firstTrimesterEnd, "EEE MMM dd yyyy")}`,
+      firstTrimester: `${format(start, "EEE MMM dd yyyy")} – ${format(
+        firstTrimesterEnd,
+        "EEE MMM dd yyyy"
+      )}`,
       secondTrimesterEnd: format(secondTrimesterEnd, "EEE MMM dd yyyy"),
       thirdTrimesterEnd: format(thirdTrimesterEnd, "EEE MMM dd yyyy"),
     });
@@ -131,260 +121,276 @@ ${gestationInfo ? `Gestational Age: ${gestationInfo.gestationalAge}, Due Date: $
   };
 
   return (
-    <div className={`flex min-h-screen ${darkMode ? "dark" : ""}`}>
-      <div className="fixed top-0 left-0 z-50">
-        <SideBar
-          sidebarVisible={sidebarVisible}
-          setSidebarVisible={setSidebarVisible}
-          activeLink={6}
-          toggleDarkMode={toggleDarkMode}
-        />
-      </div>
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-black dark:text-white transition-colors duration-300">
 
-      {width > 816 && (
-        <button
-          onClick={toggleSidebar}
-          className="fixed top-4 z-50 w-10 p-2 bg-pink-600 text-white rounded-r-md transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50"
-          style={{
-            left: sidebarVisible ? "256px" : "0px",
-          }}
-          aria-label={sidebarVisible ? "Hide sidebar" : "Show sidebar"}
-        >
-          <ChevronRight
-            size={14}
-            className={`transition-transform duration-300 block m-auto ${
-              sidebarVisible ? "rotate-180" : "rotate-0"
-            }`}
-          />
-        </button>
-      )}
+      {/* Sidebar */}
+      <SideBar
+        sidebarVisible={sidebarVisible}
+        setSidebarVisible={setSidebarVisible}
+        activeLink={6}
+      />
 
-      {/* Main Content */}
       <div
-        className={`flex-1 p-4 sm:p-8 bg-white dark:bg-gray-900 text-black dark:text-gray-100 transition-all duration-300 overflow-y-auto ${
-          width > 816 && sidebarVisible ? "ml-64" : "ml-0"
+        className={`transition-all duration-300 ease-in-out min-h-screen bg-gray-100 dark:bg-gray-900 text-black dark:text-white ${
+          sidebarVisible && width > 816 ? "lg:ml-80" : "ml-0"
         }`}
       >
-        <div className="text-center mb-10 max-w-4xl mx-auto">
-          <h2 className="text-5xl font-bold mb-7 text-purple-900 mt-5">
-            Determine Your{" "}
-            <span className="text-pink-700">Ovulation Cycle</span>
-          </h2>
-          <p className="text-m text-gray-700 dark:text-gray-300 pl-4 pr-4">
-            Use this calculator to pinpoint your most fertile days by identifying when you're likely ovulating. Menstrual cycles can vary from person to person and even from month to month, so this tool helps you better understand your unique cycle. <br/> If conception occurs, the calculator will also provide estimated pregnancy milestones such as your gestational age, trimester dates, and expected due date, so you can track your pregnancy journey right from the start.
-          </p>
-        </div>
+        {/* Sidebar Toggle */}
+        {width > 816 && (
+          <button
+            onClick={toggleSidebar}
+            className={`fixed left-4 z-40 p-3 bg-white/90 dark:bg-gray-800/90 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 rounded-full shadow-lg hover:scale-110 ${
+              sidebarVisible ? "ml-64" : "ml-2"
+            }`}
+            style={{ top: "24px" }}
+          >
+            <ChevronRight
+              size={20}
+              className={`${sidebarVisible ? "rotate-180" : "rotate-0"} transition-transform`}
+            />
+          </button>
+        )}
 
-        {/* Form */}
-        <div className="bg-pink-50 dark:bg-gray-800 shadow-lg rounded-lg p-6 max-w-xl mx-auto mb-20">
-          <div className="flex justify-center mb-10">
-            <img
-              src={OvulationImg}
-              alt="Ovulation illustration"
-              className="w-80 h-auto"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block mb-2 font-semibold">
-              Last Period Start Date
-            </label>
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              max={format(new Date(), "yyyy-MM-dd")}
-              min={format(addDays(new Date(), -365 * 5), "yyyy-MM-dd")}
-              className="w-full p-2 rounded bg-white text-black dark:bg-gray-500 dark:text-white"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block mb-2 font-semibold">
-              Cycle Length (in days)
-            </label>
-            <input
-              type="number"
-              min={20}
-              max={40}
-              value={cycleLength}
-              onChange={(e) => setCycleLength(parseInt(e.target.value))}
-              className="w-full p-2 rounded bg-white text-black dark:bg-gray-500 dark:text-white"
-            />
-          </div>
-          {/* Luteal phase input */}
-          <div className="mb-4">
-            <label className="block mb-2 font-semibold">
-              Luteal Phase Length (in days)
-              <span className="ml-2 text-xs text-gray-500">(10-16, default 14)</span>
-            </label>
-            <input
-              type="number"
-              min={10}
-              max={16}
-              value={lutealPhase}
-              onChange={handleLutealPhaseChange}
-              className="w-full p-2 rounded bg-white text-black dark:bg-gray-500 dark:text-white"
-            />
-          </div>
-          {/* Show details toggle */}
-          <div className="mb-4 flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={showDetails}
-              onChange={() => setShowDetails((v) => !v)}
-              id="showDetails"
-              className="h-4 w-4 text-pink-500"
-            />
-            <label htmlFor="showDetails" className="text-sm font-medium">
-              Show calculation details
-            </label>
-          </div>
-          <div className="flex gap-4 justify-center mt-4">
-            <button
-              onClick={calculateOvulation}
-              className="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-800"
-            >
-              Calculate
-            </button>
-            <button
-              onClick={resetForm}
-              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-            >
-              Reset
-            </button>
-            {/* Share button */}
-            {results && (
-              <button
-                onClick={handleShare}
-                className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-700"
-              >
-                Share
-              </button>
-            )}
-          </div>
-          {/* Share copied message */}
-          {showShare && (
-            <div className="text-green-600 text-center mt-2">Copied to clipboard!</div>
-          )}
-        </div>
+        {/* Dark Mode Toggle */}
+        <button
+          onClick={toggleTheme}
+          className="fixed right-4 top-6 z-40 p-3 bg-white/90 dark:bg-gray-800/90 border border-gray-200 dark:border-gray-600 rounded-full text-gray-700 dark:text-gray-200 shadow-lg hover:scale-110"
+        >
+          {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+        </button>
 
-        {/* Results */}
-        <div ref={resultsRef}>
-          {results && (
-            <>
-              <h2 className="text-3xl font-extrabold text-pink-700 mb-6 text-center mt-12">
-                Ovulation Dates
+        {/* Main Content */}
+        <main>
+          <div className="max-w-7xl mx-auto px-6 py-10">
+
+            {/* Header */}
+            <div className="text-center mb-10 max-w-4xl mx-auto">
+              <h2 className="text-5xl font-bold text-purple-900 dark:text-purple-200">
+                Determine Your{" "}
+                <span className="text-pink-700 dark:text-pink-400">Ovulation Cycle</span>
               </h2>
-              <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-                <div className="bg-pink-100 text-black p-6 rounded-lg shadow-md">
-                  <h2 className="text-xl font-semibold mb-2">Fertile Window</h2>
-                  <p className="bg-pink-300 inline-block px-3 py-1 rounded mb-2">
-                    {results.fertileWindow}
-                  </p>
-                  <p className="text-sm">
-                    The most fertile days in your cycle where conception is most
-                    likely.
-                  </p>
-                </div>
+              <p className="text-md text-gray-700 dark:text-gray-300 mt-4">
+                Use this calculator to identify your fertile window, ovulation date,
+                and pregnancy milestones if conception occurs.
+              </p>
+            </div>
 
-                <div className="bg-pink-100 text-black p-6 rounded-lg shadow-md">
-                  <h2 className="text-xl font-semibold mb-2">Ovulation Date</h2>
-                  <p className="bg-pink-300 inline-block px-3 py-1 rounded mb-2">
-                    {results.ovulationDate}
-                  </p>
-                  <p className="text-sm">
-                    Estimated date of ovulation when the egg is released.
-                  </p>
-                </div>
-
-                <div className="bg-pink-100 text-black p-6 rounded-lg shadow-md">
-                  <h2 className="text-xl font-semibold mb-2">Next Period Date</h2>
-                  <p className="bg-pink-300 inline-block px-3 py-1 rounded mb-2">
-                    {results.nextPeriod}
-                  </p>
-                  <p className="text-sm">
-                    Your next period is expected around this date based on your
-                    cycle.
-                  </p>
-                </div>
+            {/* Form */}
+            <div className="bg-pink-50 dark:bg-gray-800 shadow-lg rounded-lg p-6 max-w-xl mx-auto mb-16">
+              <div className="flex justify-center mb-6">
+                <img src={OvulationImg} alt="Ovulation" className="w-72" />
               </div>
-              {/* Calculation details */}
-              {showDetails && (
-                <div className="max-w-2xl mx-auto mt-8 bg-white dark:bg-gray-800 p-4 rounded shadow">
-                  <h3 className="text-lg font-bold mb-2 text-pink-700">How are these calculated?</h3>
-                  <ul className="list-disc pl-6 text-sm text-gray-700 dark:text-gray-200">
-                    <li>
-                      <strong>Ovulation Date:</strong> Calculated as <code>Start Date + (Cycle Length - Luteal Phase)</code>.
-                    </li>
-                    <li>
-                      <strong>Fertile Window:</strong> 4 days before ovulation to 1 day after ovulation.
-                    </li>
-                    <li>
-                      <strong>Next Period:</strong> <code>Start Date + Cycle Length</code>.
-                    </li>
-                    <li>
-                      <strong>Luteal Phase:</strong> The time between ovulation and your next period (usually 14 days, but can vary 10-16).
-                    </li>
-                  </ul>
-                </div>
+
+              {/* Date */}
+              <div className="mb-4">
+                <label className="block font-semibold text-gray-800 dark:text-gray-200 mb-1">
+                  Last Period Start Date
+                </label>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  max={format(new Date(), "yyyy-MM-dd")}
+                  min={format(addDays(new Date(), -365 * 5), "yyyy-MM-dd")}
+                  className="w-full p-2 rounded bg-white dark:bg-gray-700 text-black dark:text-white border border-gray-300 dark:border-gray-600"
+                />
+              </div>
+
+              {/* Cycle */}
+              <div className="mb-4">
+                <label className="block font-semibold text-gray-800 dark:text-gray-200 mb-1">
+                  Cycle Length (in days)
+                </label>
+                <input
+                  type="number"
+                  value={cycleLength}
+                  onChange={(e) => setCycleLength(parseInt(e.target.value) || 28)}
+                  min={20}
+                  max={40}
+                  className="w-full p-2 rounded bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-black dark:text-white"
+                />
+              </div>
+
+              {/* Luteal Phase */}
+              <div className="mb-4">
+                <label className="block font-semibold text-gray-800 dark:text-gray-200 mb-1">
+                  Luteal Phase (10-16)
+                </label>
+                <input
+                  type="number"
+                  value={lutealPhase}
+                  onChange={handleLutealPhaseChange}
+                  min={10}
+                  max={16}
+                  className="w-full p-2 rounded bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-black dark:text-white"
+                />
+              </div>
+
+              {/* Details Toggle */}
+              <div className="flex gap-2 items-center mb-4">
+                <input
+                  type="checkbox"
+                  checked={showDetails}
+                  onChange={() => setShowDetails(!showDetails)}
+                />
+                <label className="text-gray-800 dark:text-gray-200">
+                  Show calculation details
+                </label>
+              </div>
+
+              {/* Buttons */}
+              <div className="flex gap-4 justify-center mt-4">
+                <button
+                  onClick={calculateOvulation}
+                  className="bg-pink-500 hover:bg-pink-600 text-white px-6 py-2 rounded-lg shadow"
+                >
+                  Calculate
+                </button>
+                <button
+                  onClick={resetForm}
+                  className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg shadow"
+                >
+                  Reset
+                </button>
+
+                {results && (
+                  <button
+                    onClick={handleShare}
+                    className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-2 rounded-lg shadow"
+                  >
+                    Share
+                  </button>
+                )}
+              </div>
+
+              {showShare && (
+                <p className="text-center text-green-600 dark:text-green-400 mt-2">
+                  ✓ Copied to clipboard!
+                </p>
               )}
-            </>
-          )}
+            </div>
 
-          {gestationInfo && (
-            <>
-              <h2 className="text-3xl font-extrabold text-pink-700 mb-6 text-center mt-12">
-                Pregnancy Milestones
-              </h2>
-              <div className="grid md:grid-cols-4 gap-6 max-w-6xl mx-auto mb-10 ">
-                {/* Gestational Age */}
-                <div className="bg-pink-100 text-black p-6 rounded-lg shadow-md">
-                  <h2 className="text-lg font-bold mb-2">
-                    Your Gestational Age is {gestationInfo.gestationalAge}. You are expected to meet your baby around {gestationInfo.dueDate}.
+            {/* Results */}
+            <div ref={resultsRef}>
+              {results && (
+                <>
+                  <h2 className="text-3xl font-extrabold text-pink-700 dark:text-pink-400 text-center mb-6">
+                    Ovulation Dates
                   </h2>
-                  <p className="text-sm mt-2">
-                    Gestational age is the age of pregnancy and is counted from the first day of your last menstrual period.
-                  </p>
-                </div>
 
-                {/* First Trimester */}
-                <div className="bg-pink-100 text-black p-6 rounded-lg shadow-md">
-                  <h2 className="text-lg font-bold mb-2">First Trimester</h2>
-                  <p className="bg-pink-300 inline-block px-3 py-1 rounded mb-2 font-semibold">
-                    {gestationInfo.firstTrimester}
-                  </p>
-                  <p className="text-sm">
-                    In this trimester, the baby’s organs, spine, and nervous system begin to form. By the end, the baby has a heartbeat and facial features. Many women experience morning sickness and fatigue.
-                  </p>
-                </div>
+                  <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                    {/* Fertile Window */}
+                    <div className="bg-pink-100 dark:bg-pink-900/30 p-6 rounded shadow border border-pink-200 dark:border-pink-800">
+                      <h3 className="font-semibold mb-2">Fertile Window</h3>
+                      <p className="bg-pink-300 dark:bg-pink-700 px-3 py-1 inline-block rounded mb-2">
+                        {results.fertileWindow}
+                      </p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">
+                        Your highest chance of conception.
+                      </p>
+                    </div>
 
-                {/* Second Trimester */}
-                <div className="bg-pink-100 text-black p-6 rounded-lg shadow-md">
-                  <h2 className="text-lg font-bold mb-2">Second Trimester Ends On</h2>
-                  <p className="bg-pink-300 inline-block px-3 py-1 rounded mb-2 font-semibold">
-                    {gestationInfo.secondTrimesterEnd}
-                  </p>
-                  <p className="text-sm">
-                    This is often called the "growth" phase. The baby’s organs mature, movement may be felt, bones develop, and mothers may notice increased energy and a visible baby bump.
-                  </p>
-                </div>
+                    {/* Ovulation */}
+                    <div className="bg-pink-100 dark:bg-pink-900/30 p-6 rounded shadow border border-pink-200 dark:border-pink-800">
+                      <h3 className="font-semibold mb-2">Ovulation Date</h3>
+                      <p className="bg-pink-300 dark:bg-pink-700 px-3 py-1 inline-block rounded mb-2">
+                        {results.ovulationDate}
+                      </p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">
+                        Egg is released on this day.
+                      </p>
+                    </div>
 
-                {/* Third Trimester */}
-                <div className="bg-pink-100 text-black p-6 rounded-lg shadow-md">
-                  <h2 className="text-lg font-bold mb-2">Third Trimester Ends On</h2>
-                  <p className="bg-pink-300 inline-block px-3 py-1 rounded mb-2 font-semibold">
-                    {gestationInfo.thirdTrimesterEnd}
-                  </p>
-                  <p className="text-sm">
-                    The baby gains weight rapidly, and organs like lungs and brain prepare for life outside. Movements like kicking and sucking begin. Physical discomfort increases as labor approaches.
-                  </p>
-                </div>
-              </div>
-            </>
-          )}
-        </div>
-        <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-12 max-w-2xl mx-auto">
-          <strong>Note:</strong> This tool is a general calculator and should not replace professional medical advice. Results may vary from person to person. It is recommended to consult with a qualified healthcare provider for personalized guidance.
-        </p>
+                    {/* Next Period */}
+                    <div className="bg-pink-100 dark:bg-pink-900/30 p-6 rounded shadow border border-pink-200 dark:border-pink-800">
+                      <h3 className="font-semibold mb-2">Next Period</h3>
+                      <p className="bg-pink-300 dark:bg-pink-700 px-3 py-1 inline-block rounded mb-2">
+                        {results.nextPeriod}
+                      </p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">
+                        Expected period date.
+                      </p>
+                    </div>
+                  </div>
+
+                  {showDetails && (
+                    <div className="max-w-2xl mx-auto mt-8 bg-white dark:bg-gray-800 p-6 rounded shadow border border-gray-200 dark:border-gray-700">
+                      <h3 className="text-pink-700 dark:text-pink-400 font-bold mb-3">
+                        How are these calculated?
+                      </h3>
+                      <ul className="list-disc pl-6 text-sm space-y-2 text-gray-700 dark:text-gray-200">
+                        <li>Ovulation = Start Date + (Cycle Length - Luteal Phase)</li>
+                        <li>Fertile window = 4 days before ovulation → 1 day after</li>
+                        <li>Next Period = Start Date + Cycle Length</li>
+                      </ul>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {gestationInfo && (
+                <>
+                  <h2 className="text-3xl font-extrabold text-pink-700 dark:text-pink-400 text-center mt-12 mb-8">
+                    Pregnancy Milestones
+                  </h2>
+
+                  <div className="grid md:grid-cols-4 gap-6 max-w-6xl mx-auto mb-10">
+                    {/* Gestational Age */}
+                    <div className="bg-pink-100 dark:bg-pink-900/30 p-6 rounded shadow border border-pink-200 dark:border-pink-800">
+                      <h3 className="font-bold">
+                        Your Gestational Age: {gestationInfo.gestationalAge}
+                      </h3>
+                      <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">
+                        Pregnancy age counted from last menstrual period.
+                      </p>
+                      <p className="font-semibold mt-1">
+                        Due Date: {gestationInfo.dueDate}
+                      </p>
+                    </div>
+
+                    {/* 1st Trimester */}
+                    <div className="bg-pink-100 dark:bg-pink-900/30 p-6 rounded shadow border border-pink-200 dark:border-pink-800">
+                      <h3 className="font-bold mb-2">First Trimester</h3>
+                      <p className="bg-pink-300 dark:bg-pink-700 inline-block px-3 py-1 rounded font-semibold mb-2">
+                        {gestationInfo.firstTrimester}
+                      </p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">
+                        Organs and heartbeat develop.
+                      </p>
+                    </div>
+
+                    {/* 2nd Trimester */}
+                    <div className="bg-pink-100 dark:bg-pink-900/30 p-6 rounded shadow border border-pink-200 dark:border-pink-800">
+                      <h3 className="font-bold mb-2">Second Trimester Ends</h3>
+                      <p className="bg-pink-300 dark:bg-pink-700 inline-block px-3 py-1 rounded font-semibold mb-2">
+                        {gestationInfo.secondTrimesterEnd}
+                      </p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">
+                        Growth phase + baby movements begin.
+                      </p>
+                    </div>
+
+                    {/* 3rd Trimester */}
+                    <div className="bg-pink-100 dark:bg-pink-900/30 p-6 rounded shadow border border-pink-200 dark:border-pink-800">
+                      <h3 className="font-bold mb-2">Third Trimester Ends</h3>
+                      <p className="bg-pink-300 dark:bg-pink-700 inline-block px-3 py-1 rounded font-semibold mb-2">
+                        {gestationInfo.thirdTrimesterEnd}
+                      </p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">
+                        Baby gains weight and prepares for birth.
+                      </p>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-12 max-w-2xl mx-auto bg-gray-50 dark:bg-gray-800 p-4 rounded border border-gray-200 dark:border-gray-700">
+              <strong>Note:</strong> This is a general calculator and should not
+              replace professional medical advice.
+            </p>
+          </div>
+        </main>
       </div>
     </div>
   );

@@ -14,929 +14,708 @@ import {
   ChevronRight,
   Handshake,
   Check,
-  UsersRound
+  UsersRound,
+  ArrowRight,
+  Star,
+  Shield,
+  Users,
+  Calendar,
+  Microscope,
+  Brain,
+  Baby,
+  Activity,
+  Tablet,
+  ShieldCheck,
+  Zap,
+  Target,
+  BarChart3,
+  Clock,
+  Cloud,
+  Cpu,
+  Database,
+  Sparkles,
+  Circle,
+  UserCheck
 } from "lucide-react";
-import { FaLinkedin } from "react-icons/fa";
+import { FaLinkedin, FaTwitter, FaInstagram } from "react-icons/fa";
 import SideBar from "./SideBar";
 import useScreenSize from "../hooks/useScreenSize";
 import FAQSection from './FAQSection';
 
 export function Landing() {
   const navigate = useNavigate();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [sidebarVisible, setSidebarVisible] = useState(true);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  const { width } = useScreenSize();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const toggleSidebar = () => {
     setSidebarVisible(!sidebarVisible);
   };
 
-  const { width } = useScreenSize();
+  const features = [
+    {
+      icon: <Brain className="w-8 h-8" />,
+      title: "AI Health Assistant",
+      description: "24/7 personalized health guidance and symptom analysis",
+      gradient: "from-purple-500 to-pink-500",
+      stats: "94% accuracy",
+      path: "/ChatBot",
+      onClick: () => navigate("/ChatBot")
+    },
+    {
+      icon: <ActivitySquare className="w-8 h-8" />,
+      title: "Smart Tracking",
+      description: "Advanced cycle and symptom pattern recognition",
+      gradient: "from-blue-500 to-cyan-500",
+      stats: "10M+ data points",
+        path: "/tracker",
+      onClick: () => navigate("/tracker")
+    },
+    {
+      icon: <UsersRound className="w-8 h-8" />,
+      title: "Expert Network",
+      description: "Connect with specialized healthcare professionals",
+      gradient: "from-green-500 to-emerald-500",
+      stats: "500+ doctors",
+              path: "/consultations",
+      onClick: () => navigate("/consultations")
 
-  useEffect(() => {
-    // Handle initial sidebar state
-    const handleResize = () => {
-      if (window.innerWidth < 768) {
-        // 768px is typical mobile breakpoint
-        setSidebarVisible(false);
-      }
-    };
-
-    handleResize();
-
-    window.addEventListener("resize", handleResize);
-
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+    },
+    {
+      icon: <ShieldCheck className="w-8 h-8" />,
+      title: "Secure Platform",
+      description: "Your health data is protected with enterprise-grade security",
+      gradient: "from-orange-500 to-red-500",
+      stats: "100% encrypted",
+              path: "/parents",
+      onClick: () => navigate("/parents")
+    }
+  ];
 
   return (
-    <div className={`flex h-screen`}>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900/20">
+      {/* Sidebar - Fixed positioning */}
       <SideBar
         sidebarVisible={sidebarVisible}
         setSidebarVisible={setSidebarVisible}
         activeLink={1}
+        onClose={() => setSidebarVisible(false)}
       />
-      {width > 816 && (
-        <button
-          onClick={toggleSidebar}
-          className="fixed left-0 top-0 w-10 z-10 p-2 bg-pink-600 text-white rounded-r-md  transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50"
-          style={{
-            transform: sidebarVisible ? "translateX(256px)" : "translateX(0)",
-          }}
-          aria-label={sidebarVisible ? "Hide sidebar" : "Show sidebar"}
-        >
-          <ChevronRight
-            size={14}
-            className={`transition-transform duration-300 block m-auto ${
-              sidebarVisible ? "rotate-180" : "rotate-0"
-            }`}
-          />
-        </button>
-      )}
 
-      {/* Main Content */}
-      <main
-        className={`flex-1 p-6 overflow-auto bg-white dark:bg-gray-900 transition-all duration-300 ease-in-out ${
-          sidebarVisible ? "md:ml-[240px]" : "ml-0"
-        }`}
-      >
-        <div className="fixed bottom-4 right-4 z-50">
-          <img
-            src="/images/chatgpt.png"
-            onClick={() => navigate("/Chatbot")}
-            className="w-16 h-16 cursor-pointer"
-            alt="Chatbot"
-          />
-        </div>
-        <div className="max-w-6xl mx-auto space-y-12">
-          {/* Header */}
-          <div className="flex justify-between items-center">
-            <h1
-              className={`text-3xl font-bold text-pink-600 dark:text-pink-400 ${sidebarVisible && width > 816 ? "pl-0" : "pl-11"}
-            `}
+      {/* Main Content Area */}
+      <div className={`transition-all duration-300 ease-in-out ${sidebarVisible && width > 816 ? "lg:ml-80" : "ml-0"
+        }`}>
+        {/* Top toggle button - only show on larger screens */}
+        {width > 816 && (
+          <button
+            onClick={toggleSidebar}
+            className={`fixed left-4 z-40 p-3 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 rounded-full shadow-lg transition-all duration-300 ease-out hover:bg-white dark:hover:bg-gray-700 hover:shadow-xl hover:scale-110 ${isScrolled ? 'top-24' : 'top-6'
+              } ${sidebarVisible ? 'ml-64' : 'ml-2'
+              }`}
+            aria-label={sidebarVisible ? "Hide sidebar" : "Show sidebar"}
+          >
+            <ChevronRight
+              size={20}
+              className={`transition-transform duration-300 ${sidebarVisible ? "rotate-180" : "rotate-0"
+                }`}
+            />
+          </button>
+        )}
+
+        {/* Main Content */}
+        <main className="relative">
+          {/* Floating Action Button */}
+          <div className="fixed bottom-8 right-8 z-40">
+            <div
+              onClick={() => navigate("/Chatbot")}
+              className="group relative cursor-pointer"
             >
-              Welcome to Herizon
-            </h1>
-            {/* <button
-              onClick={toggleDarkMode}
-              className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 "
-            >
-              {darkMode ? (
-                <Sun className="h-5 w-5 text-gray-800 dark:text-gray-200" />
-              ) : (
-                <Moon className="h-5 w-5 text-gray-800 dark:text-gray-200" />
-              )}
-            </button> */}
+              <div className="absolute -inset-4 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+              <div className="relative bg-gradient-to-br from-purple-600 to-pink-600 p-4 rounded-2xl shadow-2xl border border-white/20 backdrop-blur-md transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-12">
+                <Bot className="w-8 h-8 text-white" />
+                <div className="absolute -top-2 -right-2 bg-white dark:bg-gray-800 text-purple-600 text-xs font-bold px-2 py-1 rounded-full shadow-lg border border-purple-200 dark:border-purple-800">
+                  AI
+                </div>
+              </div>
+            </div>
           </div>
-          {/* Hero Section */}
 
-          <Card className="border border-pink-600 hover:bg-pink-200 active:bg-pink-100 focus:outline-none focus:ring focus:ring-pink-300 dark:hover:bg-pink-500">
+          {/* Content Container with proper sidebar spacing */}
+          <div className="max-w-7xl mx-auto space-y-24 px-6 py-12">
+            {/* Enhanced Hero Section */}
+            <section className="relative min-h-[90vh] flex items-center">
+              {/* Background Elements */}
+              <div className="absolute inset-0 overflow-hidden">
+                <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl"></div>
+                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-500/10 rounded-full blur-3xl"></div>
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl"></div>
+              </div>
 
-            <div className="flex flex-col md:flex-row items-center gap-8">
-              <div className="w-full md:w-1/2 pr-8">
-                <h2 className="text-4xl font-bold mb-4 text-gray-900 dark:text-gray-100">
-                  Herizon: Your Journey to Confident Cycles
+              <div className="relative grid lg:grid-cols-2 gap-16 items-center w-full">
+                <div className="space-y-8">
+                  {/* Badge */}
+                  <div className="inline-flex items-center gap-3 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md text-purple-700 dark:text-purple-300 px-6 py-3 rounded-2xl text-sm font-semibold border border-purple-200 dark:border-purple-800 shadow-lg">
+                    <Sparkles className="w-5 h-5" />
+                    AI-Powered Women's Health Platform
+                  </div>
+
+                  {/* Main Heading */}
+                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight">
+                    <span className="bg-gradient-to-r from-gray-900 via-purple-700 to-pink-600 dark:from-white dark:via-purple-300 dark:to-pink-400 bg-clip-text text-transparent">
+                      Revolutionizing
+                    </span>
+                    <br />
+                    <span className="bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 dark:from-pink-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent">
+                      Women's Healthcare
+                    </span>
+                  </h1>
+
+                  {/* Description */}
+                  <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
+                    Experience the future of women's health with our intelligent platform that combines
+                    cutting-edge AI, personalized insights, and expert care in one seamless experience.
+                  </p>
+
+                  {/* CTA Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <button
+                      onClick={() => navigate("/Signup")}
+                      className="group relative bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold hover:from-purple-500 hover:to-pink-500 transform transition-all duration-500 hover:scale-105 shadow-xl hover:shadow-2xl"
+                    >
+                      <span className="relative z-10 flex items-center gap-3">
+                        Start Your Journey
+                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                      </span>
+                      <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    </button>
+
+                    <button
+                      onClick={() => navigate("/demo")}
+                      className="group border-2 border-purple-200 dark:border-purple-800 text-purple-600 dark:text-purple-400 px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold hover:border-purple-300 dark:hover:border-purple-700 hover:bg-purple-50 dark:hover:bg-purple-900/20 transform transition-all duration-500 hover:scale-105"
+                    >
+                      Watch Demo
+                    </button>
+                  </div>
+
+                  {/* Trust Indicators */}
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:gap-8 pt-8">
+                    <div className="flex items-center gap-4">
+                      <div className="flex -space-x-3">
+                        {[1, 2, 3, 4].map((i) => (
+                          <div key={i} className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full border-2 border-white dark:border-gray-800 shadow-lg"></div>
+                        ))}
+                      </div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        <div className="font-semibold">10,000+</div>
+                        <div>Women Empowered</div>
+                      </div>
+                    </div>
+
+                    <div className="hidden sm:block h-12 w-px bg-gray-300 dark:bg-gray-600"></div>
+
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star key={star} className="w-5 h-5 text-yellow-400 fill-current" />
+                        ))}
+                      </div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        <div className="font-semibold">4.9/5</div>
+                        <div>Rating</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Hero Visual */}
+                <div className="relative">
+                  <div className="relative bg-gradient-to-br from-white/80 to-purple-50/80 dark:from-gray-800/80 dark:to-purple-900/20 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-white/50 dark:border-gray-700/50 shadow-2xl">
+                    {/* Feature Cards Grid */}
+                    <div className="grid grid-cols-2 gap-4 sm:gap-6">
+                      <div className="space-y-4 sm:space-y-6">
+                        <FeatureVisualCard
+                          icon={<ActivitySquare className="w-5 h-5 sm:w-6 sm:h-6" />}
+                          title="Health Tracking"
+                          value="94%"
+                          subtitle="Accuracy"
+                          color="purple"
+                        />
+                        <FeatureVisualCard
+                          icon={<Brain className="w-5 h-5 sm:w-6 sm:h-6" />}
+                          title="AI Predictions"
+                          value="10M+"
+                          subtitle="Data Points"
+                          color="pink"
+                        />
+                      </div>
+                      <div className="space-y-4 sm:space-y-6 mt-4 sm:mt-8">
+                        <FeatureVisualCard
+                          icon={<UsersRound className="w-5 h-5 sm:w-6 sm:h-6" />}
+                          title="Expert Network"
+                          value="500+"
+                          subtitle="Doctors"
+                          color="blue"
+                        />
+                        <FeatureVisualCard
+                          icon={<ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />}
+                          title="Secure & Private"
+                          value="100%"
+                          subtitle="Encrypted"
+                          color="green"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Animated Progress Bars */}
+                    <div className="mt-6 sm:mt-8 space-y-4">
+                      <ProgressBar label="Cycle Prediction" percentage={94} color="purple" />
+                      <ProgressBar label="Symptom Analysis" percentage={89} color="pink" />
+                      <ProgressBar label="Treatment Success" percentage={92} color="blue" />
+                    </div>
+                  </div>
+
+                  {/* Floating Elements */}
+                  <div className="absolute -top-2 -right-2 sm:-top-4 sm:-right-4 w-6 h-6 sm:w-8 sm:h-8 bg-purple-500 rounded-full blur-xl opacity-50 animate-pulse"></div>
+                  <div className="absolute -bottom-2 -left-2 sm:-bottom-4 sm:-left-4 w-6 h-6 sm:w-8 sm:h-8 bg-pink-500 rounded-full blur-xl opacity-50 animate-pulse delay-1000"></div>
+                </div>
+              </div>
+            </section>
+
+            {/* Features Grid */}
+            {/* <section>
+              <div className="text-center mb-16">
+                <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+                  Intelligent Health Features
                 </h2>
-                <p className="text-lg mb-6 text-gray-700 dark:text-gray-300">
-                  Empowering Women One Cycle at a Time
-                </p>
-
-                <button
-                  onClick={() => navigate("/Signup")}
-
-                  className="bg-pink-600 dark:bg-pink-500 text-white px-6 py-2 rounded-full hover:bg-pink-700 dark:hover:bg-pink-600 transform transition-all duration-300 hover:scale-105 shadow-md border dark:border-white"
-
-                >
-                  Join Us!
-                </button>
-              </div>
-            </div>
-          </Card>
-          {/* Features Overview */}
-          <Card className="!bg-white dark:!bg-gray-900 transition-none transform-none hover:transform-none">
-            <h3 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-gray-100">
-              Comprehensive Health Management
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div onClick={() => navigate("/Dashboard")} className="flex flex-col items-start p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-pink-200 cursor-pointer">
-                <LayoutDashboard className="h-8 w-8 text-pink-600 dark:text-pink-400 mb-4" />
-                <h4 className="text-lg font-semibold text-pink-600">Personalized Child Dashboard</h4>
-                <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
-                  A space for children to manage their cycles, log symptoms, and access resources designed for their journey.
+                <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                  Powered by advanced AI and designed with women's unique health needs in mind
                 </p>
               </div>
 
-              <div onClick={() => navigate("/blogs")} className="flex flex-col items-start p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-pink-200 cursor-pointer">
-                <GraduationCap className="h-8 w-8 text-pink-600 dark:text-pink-400 mb-4" />
-                <h4 className="text-lg font-semibold text-pink-600">Education Hub</h4>
-                <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
-                  Learn menstrual health through interactive blogs, modules, and rewards— stigma-free and fun!
-                </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+                {features.map((feature, index) => (
+                  <FeatureCard
+                    key={index}
+                    {...feature}
+                    index={index}
+                    onClick={() => navigate(`/feature-${feature.title.toLowerCase().replace(/\s+/g, '-')}`)}
+                  />
+                ))}
               </div>
-              
-              <div onClick={() => navigate("/Ecom")} className="flex flex-col items-start p-6 bg-white dark:bg-gray-800 hover:bg-pink-200 rounded-lg shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer">
-                <ShoppingBag className="h-8 w-8 text-pink-600 dark:text-pink-400 mb-4" />
-                <h4 className="text-lg font-semibold text-pink-600">Curated Shop</h4>
-                <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
-                  Discover eco-friendly products and redeem learning points for sustainable choices.
-                </p>
-              </div>
+            </section> */}
+           <section>
+  <div className="text-center mb-16">
+    <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+      Intelligent Health Features
+    </h2>
+    <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+      Powered by advanced AI and designed with women's unique health needs in mind
+    </p>
+  </div>
 
-              <div onClick={() => navigate("/tracker")} className="flex hover:bg-pink-200 flex-col items-start p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer">
-                <ActivitySquare className="h-8 w-8 text-pink-600 dark:text-pink-400 mb-4" />
-                <h4 className="text-lg font-semibold text-pink-600">Health Tracker</h4>
-                <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
-                  Log cycles, symptoms, and moods to understand patterns and gain actionable health insights.
-                </p>
-              </div>
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+    {features.map((feature, index) => (
+      <FeatureCard
+        key={index}
+        {...feature}
+        index={index}
+        onClick={() => navigate(feature.path)}   // ✅ FIXED
+      />
+    ))}
+  </div>
+</section>
 
-              <div onClick={() => navigate("/consultations")} className="hover:bg-pink-200 flex flex-col items-start p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer">
-                <Stethoscope className="h-8 w-8 text-pink-600 dark:text-pink-400 mb-4" />
-                <h4 className="text-lg font-semibold text-pink-600">Expert Consultations</h4>
-                <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
-                  Access trusted health professionals for personalized advice and timely support.
-                </p>
-              </div>
 
-              <div onClick={() => navigate("/ChatBot")} className="flex flex-col items-start p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-pink-200 cursor-pointer">
-                <Bot className="h-8 w-8 text-pink-600 dark:text-pink-400 mb-4" />
-                <h4 className="text-lg font-semibold text-pink-600">Eve</h4>
-                <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
-                  Get AI personalized insights, symptom analysis, and timely reminders tailored to your unique menstrual health needs.
-                </p>
-              </div>
 
-              <div onClick={() => navigate("/parents")} className="flex flex-col items-start p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-pink-200 cursor-pointer">
-                <UsersRound className="h-8 w-8 text-pink-600 dark:text-pink-400 mb-4" />
-                <h4 className="text-lg font-semibold text-pink-600">Parent's Dashboard</h4>
-                <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
-                  Stay informed with cycle updates, mood tracking, and AI alerts— supporting your child without compromising their privacy.
-                </p>
-              </div>
+            {/* Stats Section */}
+            <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              <StatCard
+                number="25,480"
+                label="Women Helped"
+                icon={<UsersRound className="w-5 h-5 sm:w-6 sm:h-6" />}
+                color="purple"
+              />
+              <StatCard
+                number="15,620"
+                label="AI Consultations"
+                icon={<Brain className="w-5 h-5 sm:w-6 sm:h-6" />}
+                color="pink"
+              />
+              <StatCard
+                number="94.7%"
+                label="Accuracy Rate"
+                icon={<Target className="w-5 h-5 sm:w-6 sm:h-6" />}
+                color="blue"
+              />
+              <StatCard
+                number="500+"
+                label="Health Experts"
+                icon={<Stethoscope className="w-5 h-5 sm:w-6 sm:h-6" />}
+                color="green"
+              />
+            </section>
 
-              <div onClick={() => navigate("/symptomsanalyzer")} className="flex flex-col items-start p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-pink-200 cursor-pointer">
-                <HeartPulse className="h-8 w-8 text-pink-600 dark:text-pink-400 mb-4" />
-                <h4 className="text-lg font-semibold text-pink-600">Health Lens</h4>
-                <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
-                  An AI-powered tool to analyze symptoms, offer community insights, and provide actionable health advice.
-                </p>
-              </div>
-
-              <div onClick={() => navigate("/forums")} className="flex flex-col items-start p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-pink-200 cursor-pointer">
-                <MessageSquare className="h-8 w-8 text-pink-600 dark:text-pink-400 mb-4" />
-                <h4 className="text-lg font-semibold text-pink-600">Forums</h4>
-                <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
-                  A safe, anonymous space for peer support, discussions, and expert Q&A on menstrual health and related topics.
-                </p>
-              </div>
-
-              <div onClick={() => navigate("/partner")} className="flex flex-col items-start p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-pink-200 cursor-pointer">
-                <ClipboardList className="h-8 w-8 text-pink-600 dark:text-pink-400 mb-4" />
-                <h4 className="text-lg font-semibold text-pink-600">PCOS Diagnosis</h4>
-                <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
-                  A tool to help you diagnose PCOS and get personalized advice.
-                </p>
-              </div>
-
-              <div onClick={() => window.open("https://www.hercircle.in/engage/wellness/reproductive-health/5-organisations-working-towards-eradicating-period-poverty-2239.html", "_blank")} className="flex flex-col items-start p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-pink-200 cursor-pointer">
-                <Handshake className="h-8 w-8 text-pink-600 dark:text-pink-400 mb-4" />
-                <h4 className="text-lg font-semibold text-pink-600">NGO's</h4>
-                <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
-                  Discover and connect with NGOs dedicated to women's health, empowerment, and well-being. Together, we can build a supportive community for women everywhere.
-                </p>
-              </div>
-
-              <div onClick={() => window.open("https://thepadproject.org/donate/", "_blank")} className="flex flex-col items-start p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-pink-200 cursor-pointer">
-                <HeartHandshake className="h-8 w-8 text-pink-600 dark:text-pink-400 mb-4" />
-                <h4 className="text-lg font-semibold text-pink-600">ShareJoy</h4>
-                <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
-                  Make a difference by donating sanitary pads through our curated platform, ensuring access to menstrual hygiene for those in need. Sharing joy starts here!
-                </p>
-              </div>
-            </div>
-          </Card>
-          {/* Team Members Card */}
-          {/*<Card className="my-8">
-            <div className="bg-gray-900 rounded-xl p-6 relative overflow-hidden group">
-              {/* Animated Background Pattern */}
-          {/*<div className="absolute inset-0 opacity-10">
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    backgroundImage:
-                      "radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0)",
-                    backgroundSize: "24px 24px",
-                  }}
-                ></div>
-              </div>
-
-              {/* Animated Gradient Overlay */}
-          {/*<div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-pink-500/20 opacity-0 group-hover:opacity-100 transition-all duration-500 bg-[length:200%_100%] animate-gradient"></div>
-
-              {/* Content */}
-          {/*<div className="relative z-10 space-y-6">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="text-2xl font-bold text-white mb-2">
-                      Team WEB PIONEERS
-                    </h3>
-                  </div>
-                  <div className="bg-green-500/20 px-3 py-1 rounded-full flex items-center">
-                    <span className="text-green-400 text-sm font-medium">
-                      Active Project
-                    </span>
-                  </div>
+            {/* How It Works */}
+            <section className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-pink-500/5 rounded-3xl blur-3xl"></div>
+              <div className="relative">
+                <div className="text-center mb-16">
+                  <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+                    How Herizon Works
+                  </h2>
                 </div>
 
-                {/* Team Stats Grid */}
-          {/*<div className="grid grid-cols-2 gap-4">
-                  <div className="bg-gray-800/50 rounded-lg p-4">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="text-gray-400 text-sm">Team Size</p>
-                        <p className="text-3xl font-bold text-white">04</p>
-                      </div>
-                      <div className="h-10 w-10 rounded-full bg-pink-500/20 flex items-center justify-center">
-                        <Users className="h-5 w-5 text-pink-400" />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="bg-gray-800/50 rounded-lg p-4">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="text-gray-400 text-sm">Project Status</p>
-                        <p className="text-lg font-semibold text-white">
-                          In Development
-                        </p>
-                      </div>
-                      <div className="h-10 w-10 rounded-full bg-purple-500/20 flex items-center justify-center">
-                        <ActivitySquare className="h-5 w-5 text-purple-400" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Team Focus Areas */}
-          {/*<div className="bg-gray-800/50 rounded-lg p-4">
-                  <h4 className="text-gray-300 font-medium mb-3">
-                    Focus Areas
-                  </h4>
-                  <div className="flex flex-wrap gap-2">
-                    <span className="px-3 py-1 rounded-full bg-pink-500/20 text-pink-400 text-sm">
-                      Women's Health
-                    </span>
-                    <span className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-400 text-sm">
-                      AI Integration
-                    </span>
-                    <span className="px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 text-sm">
-                      Healthcare Tech
-                    </span>
-                    <span className="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-sm">
-                      Community Building
-                    </span>
-                  </div>
-                </div>
-
-                {/* Action Button */}
-          {/*<button
-                  onClick={() => navigate("/team")}
-                  className="w-full bg-gradient-to-r from-pink-600 to-purple-600 text-white px-6 py-4 rounded-lg font-medium
-                           hover:from-pink-500 hover:to-purple-500 transition-all duration-300
-                           flex items-center justify-center space-x-2 group relative overflow-hidden"
-                >
-                  {/* Button Shine Effect */}
-          {/*<div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-300">
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
-                  </div>
-
-                  <div className="relative flex items-center space-x-2">
-                    <span className="text-l text-gray-700 dark:text-gray-200">
-                      Meet Our Team
-                    </span>
-                    <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </button>
-
-                {/* Bottom Stats */}
-          {/*<div className="pt-4 mt-4 border-t border-gray-800 grid grid-cols-2 gap-4">
-                  <div className="flex items-center space-x-2">
-                    <Calendar className="h-4 w-4 text-gray-400" />
-                    <span className="text-gray-400 text-sm">
-                      Started: Mar 2025
-                    </span>
-                  </div>
-                  <div className="flex items-center space-x-2 justify-end">
-                    <Heart className="h-4 w-4 text-gray-400" />
-                    <span className="text-gray-400 text-sm">
-                      Made with passion
-                    </span>
-                  </div>
+                <div className="grid md:grid-cols-3 gap-6 sm:gap-8">
+                  <StepCard
+                    number="01"
+                    title="Personal Assessment"
+                    description="Complete your health profile with our intelligent onboarding process"
+                    icon={<UserCheck className="w-7 h-7 sm:w-8 sm:h-8" />}
+                    color="purple"
+                  />
+                  <StepCard
+                    number="02"
+                    title="AI-Powered Insights"
+                    description="Receive personalized recommendations and health predictions"
+                    icon={<Brain className="w-7 h-7 sm:w-8 sm:h-8" />}
+                    color="pink"
+                  />
+                  <StepCard
+                    number="03"
+                    title="Continuous Care"
+                    description="Track progress and get ongoing support from our platform"
+                    icon={<HeartPulse className="w-7 h-7 sm:w-8 sm:h-8" />}
+                    color="blue"
+                  />
                 </div>
               </div>
-            </div>
-          </Card>*/}
+            </section>
 
-          {/* Key Benefits Section */}
+            {/* Testimonials */}
+            <section>
+              <div className="text-center mb-16">
+                <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+                  Trusted by Women Worldwide
+                </h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                <TestimonialCard
+                  quote="Herizon helped me understand my body in ways I never thought possible. The AI insights are incredibly accurate!"
+                  author="Sarah Chen"
+                  role="Software Engineer"
+                  rating={5}
+                />
+                <TestimonialCard
+                  quote="As a busy professional, Herizon gives me the tools to manage my health without the stress. Life-changing!"
+                  author="Maria Rodriguez"
+                  role="Marketing Director"
+                  rating={5}
+                />
+                <TestimonialCard
+                  quote="The community support and expert access made all the difference in my health journey."
+                  author="Dr. Emily Watson"
+                  role="Physician"
+                  rating={5}
+                />
+              </div>
+            </section>
 
-          <Card className="border border-pink-600 hover:bg-pink-200  focus:outline-none focus:ring focus:ring-pink-300 dark:hover:bg-pink-500 ">
+            {/* CTA Section */}
+            <section>
+              <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 rounded-3xl p-8 sm:p-12 text-center relative overflow-hidden">
+                <div className="absolute inset-0 bg-black/10"></div>
+                <div className="absolute -top-20 -right-20 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+                <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
 
-            <h3 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-gray-100  ">
-              Key Benefits of Using Herizon
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 " >
-              <BenefitItem className="hover:bg-pink-200 transition-colors"
-                title="Personalized Insights"
-                description="Herizon offers a shared platform with dual dashboards, ensuring parents stay informed without invading their child's privacy, fostering trust and security."
-              />
-              <BenefitItem
-                title="Holistic Approach"
-                description="Unlike traditional platforms, Herizon addresses the unique needs of young menstruators with personalized tools for tracking cycles and early detection of menstrual issues."
-              />
-              <BenefitItem
-                title="Expert-Backed Content"
-                description="The Education Hub provides gamified, engaging content that empowers children to learn about menstruation in a fun, stigma-free environment, promoting period positivity."
-              />
-              <BenefitItem
-                title="Community Support"
-                description="Herizon encourages open dialogue between parents and children about menstruation, helping build a supportive, trusting relationship and enhancing emotional well-being."
-              />
-            </div>
-          </Card>
-          {/* Our Mission Section */}
-
-          <Card className=" border border-pink-600 hover:bg-pink-200 active:bg-pink-700 focus:outline-none focus:ring focus:ring-pink-300  dark:hover:bg-pink-500">
-            <h3 className="text-2xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
-              Our Mission
-            </h3>
-            <p className="text-lg mb-4 text-gray-800 dark:text-gray-300">
-              Herizon's mission is to promote period positivity, reduce stigma,
-              and empower families with education and support. We focus on early
-              detection of health issues and provide access to affordable
-              hygiene products.
-            </p>
-            <p className="text-lg text-gray-800 dark:text-gray-300">
-              Our main focus is on global expansion, with plans to integrate
-              advanced AI for personalized health insights and strengthen
-              partnerships with schools, NGOs, and healthcare organizations to
-              maximize impact.
-            </p>
-          </Card>
-          {/* How It Works Section */}
-          {/* <Card className=" hover:bg-pink-200 active:bg-pink-700 focus:outline-none focus:ring focus:ring-pink-300  dark:hover:bg-pink-500">
-            <h3 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-gray-100">
-              How Herizon Works
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <StepCard
-                number={1}
-                title="Sign Up"
-                description="Create your account and set up your profile with basic health information."
-              />
-              <StepCard
-                number={2}
-                title="Track Your Health"
-                description="Log your symptoms, cycle, and wellness data regularly for personalized insights."
-              />
-              <StepCard
-                number={3}
-                title="Get Insights"
-                description="Receive tailored recommendations and connect with experts for better health management."
-              />
-            </div>
-          </Card>*/}
-          {/* Testimonials */}
-
-          <Card className=" border border-pink-600 hover:bg-pink-200 active:bg-pink-700 focus:outline-none focus:ring focus:ring-pink-300  dark:hover:bg-pink-500">
-
-            <h3 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-gray-100">
-              What Our Users Say
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <TestimonialCard
-                quote="Herizon has completely changed how I manage my health. It's like having a personal health assistant!"
-                author="Divya Jain"
-              />
-              <TestimonialCard
-                quote="The community here is so supportive. I've learned so much and feel empowered to take control of my well-being."
-                author="Aisha Gupta"
-              />
-            </div>
-          </Card>
-          {/* Latest Blog Posts */}
-          {/* <Card className=" hover:bg-pink-200 active:bg-pink-700 focus:outline-none focus:ring focus:ring-pink-300  dark:hover:bg-pink-500">
-            <h3 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-gray-100">
-              Latest from Our Blog
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <BlogPostCard
-                title="Understanding Your Menstrual Cycle"
-                excerpt="Learn about the four phases of the menstrual cycle and how they affect your body and mood."
-                date="Jan 15, 2025"
-              />
-              <BlogPostCard
-                title="Nutrition Tips for Hormonal Balance"
-                excerpt="Discover the foods that can help regulate your hormones and improve your overall health."
-                date="Jan 10, 2025"
-              />
-              <BlogPostCard
-                title="Stress Management Techniques"
-                excerpt="Explore effective ways to manage stress and its impact on your menstrual health."
-                date="Jan 5, 2025"
-              />
-            </div>
-          </Card>*/}
-          {/* Success Stories */}
-
-          <Card className="border border-pink-600 bg-pink-800 text-white  hover:bg-pink-200 active:bg-pink-100 focus:outline-none focus:ring focus:ring-pink-300  dark:hover:bg-pink-500">
-            <h3 className="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-100">
-              Success Stories
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <SuccessStoryCard
-                className="bg-pink-800 text-white"
-                name="Anubha Garg"
-                story="After struggling with irregular cycles for years, Herizon helped me understand my body better. Within 3 months, I could predict my cycle accurately!"
-                improvement="Cycle Regularity"
-              />
-              <SuccessStoryCard
-                name="Riya Sharma"
-                story="The nutritional guidance on Herizon transformed my diet. My energy levels have improved, and I've noticed a significant reduction in PMS symptoms."
-                improvement="Overall Well-being"
-              />
-              <SuccessStoryCard
-                name="Aditi Jain"
-                story="The forums have made it easier for me to reach out to people who are suffering from the same symptoms as I do."
-                improvement="Mental Health"
-              />
-              <SuccessStoryCard
-                name="Manyata"
-                story="This website has helped me educate myself and be prepared for my first periods."
-                improvement="Awareness"
-              />
-              <SuccessStoryCard
-                name="Divyanshi Sharma"
-                story="This app has helped me maintain a well balanced and nutritious diet. I have been able to feel strong even during my periods thanks to Herizon."
-                improvement="Physical Well-being"
-              />
-              <SuccessStoryCard
-                name="Swathi"
-                story="As a working woman I often find it very difficult to take care of myself but she-sync has made it very easy for me to be healthy."
-                improvement="Overall Well-being"
-              />
-            </div>
-          </Card>
-          {/* Expert Insights */}
-
-          <Card className=" border border-pink-600 hover:bg-pink-200 active:bg-pink-100 focus:outline-none focus:ring focus:ring-pink-300  dark:hover:bg-pink-500">
-
-            <h3 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-gray-100">
-              Expert Insights
-            </h3>
-            <div className="space-y-6">
-              <ExpertInsightCard
-                expert="Dr. Deepti Mishra, OB/GYN"
-                insight="Regular tracking of menstrual cycles can lead to early detection of various health issues. Herizon's comprehensive tracking features make this process easy and insightful for users."
-              />
-              <ExpertInsightCard
-                expert="Vaishali Shah, Nutritionist"
-                insight="The personalized nutritional recommendations provided by Herizonare based on solid scientific research. They can significantly improve hormonal balance and overall health."
-              />
-            </div>
-          </Card>
-          {/* Community Highlights */}
-
-          <Card className="border border-pink-600 hover:bg-pink-200 active:bg-pink-100 focus:outline-none focus:ring focus:ring-pink-300  dark:hover:bg-pink-500">
-
-            <h3 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-gray-100">
-              Community Highlights
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <CommunityHighlightCard
-                title="Monthly Wellness Challenges"
-                description="Join our community-wide challenges focused on different aspects of women's health each month."
-              />
-              <CommunityHighlightCard
-                title="Support Groups"
-                description="Connect with women facing similar health challenges in our moderated support groups."
-              />
-              <CommunityHighlightCard
-                title="Expert Q&A Sessions"
-                description="Participate in live Q&A sessions with health experts and get your questions answered."
-              />
-            </div>
-          </Card>
-          {/* FAQ Section */}
-
-          {/* <Card className="border border-pink-600 hover:bg-pink-200  focus:outline-none focus:ring focus:ring-pink-300  dark:hover:bg-pink-500">
-
-            <h3 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-gray-100">
-              Frequently Asked Questions
-            </h3>
-            <div className="space-y-4">
-              <FAQItem
-                question="Is my data safe and private?"
-                answer="Yes, we take your privacy seriously. All your data is encrypted and we never share your personal information with third parties."
-              />
-              <FAQItem
-                question="Can I use Herizon if I have irregular cycles?"
-                answer="Herizon is designed to accommodate all types of cycles, including irregular ones. Our AI adapts to your unique patterns over time."
-              />
-              <FAQItem
-                question="How often should I log my symptoms?"
-                answer="For the best results, we recommend logging your symptoms daily. However, even logging a few times a week can provide valuable insights."
-              />
-              <FAQItem
-                question="How does Herizon protect my privacy?"
-                answer="We use state-of-the-art encryption and follow strict data protection protocols. Your personal information is never sold or shared with third parties without your explicit consent."
-              />
-              <FAQItem
-                question="Can I use Herizon if I'm not menstruating?"
-                answer="Herizon offers features for all aspects of women's health, including general wellness tracking, nutritional guidance, and mental health support."
-              />
-              <FAQItem
-                question="Are the health articles on Herizon written by professionals?"
-                answer="Yes, all our educational content is created or reviewed by qualified healthcare professionals to ensure accuracy and relevance."
-              />
-            </div>
-          </Card> */}
-          <FAQSection />
-          {/*App Features Showcase */}
-          {/* <Card className=" hover:bg-pink-200 active:bg-pink-100 focus:outline-none focus:ring focus:ring-pink-300  dark:hover:bg-pink-500">
-            <h3 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-gray-100">
-              App Features Showcase
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <AppFeatureCard
-                title="Cycle Prediction"
-                description="Our AI-powered algorithm learns from your data to provide accurate cycle predictions."
-                icon={
-                  <Calendar className="h-8 w-8 text-pink-600 dark:text-pink-400" />
-                }
-              />
-              <AppFeatureCard
-                title="Symptom Tracking"
-                description="Log and monitor various symptoms to gain insights into your health patterns."
-                icon={
-                  <ActivitySquare className="h-8 w-8 text-pink-600 dark:text-pink-400" />
-                }
-              />
-              <AppFeatureCard
-                title="Nutrition Guide"
-                description="Get personalized nutrition advice based on your cycle phase and health goals."
-                icon={
-                  <Utensils className="h-8 w-8 text-pink-600 dark:text-pink-400" />
-                }
-              />
-              <AppFeatureCard
-                title="Mood Tracking"
-                description="Track your emotional well-being and identify patterns related to your cycle."
-                icon={
-                  <Heart className="h-8 w-8 text-pink-600 dark:text-pink-400" />
-                }
-              />
-            </div>
-          </Card>*/}
-          {/* Partnerships */}
-          {/*  <Card className=" hover:bg-pink-200 active:bg-pink-100 focus:outline-none focus:ring focus:ring-pink-300  dark:hover:bg-pink-500">
-            <h3 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-gray-100">
-              Our Trusted Partners
-            </h3>
-            <p className="text-lg mb-6 text-gray-800 dark:text-gray-300">
-              We collaborate with leading healthcare providers, research
-              institutions, and wellness brands to bring you the best in Women's
-              health care.
-            </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <PartnerLogo name="HealthTech Inc." />
-              <PartnerLogo name="WomenWell Research" />
-              <PartnerLogo name="NutriBalance" />
-              <PartnerLogo name="MindfulHer" />
-            </div>
-          </Card>*/}
-
-          {/* CTA */}
-          <Card className=" border #D63384 dark:hover:bg-pink-500  hover:bg-pink-200 active:bg-pink-100 focus:outline-none focus:ring focus:ring-pink-300 ">
-            <div className="text-center">
-              <h3 className="text-2xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
-                Ready to Take Control of Your Health?
-              </h3>
-              <p className="mb-6 text-gray-800 dark:text-gray-300">
-                Join Herizon today and start your journey to better health and
-                wellness.
-              </p>
-              <button
-                onClick={() => navigate("/Signup")}
-                className="bg-pink-600 dark:bg-pink-500 text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-pink-700 dark:hover:bg-pink-600 shadow-md transform transition-all duration-300 hover:scale-105 border dark:border-white"
-              >
-                Sign Up Now
-              </button>
-            </div>
-          </Card>
-
-          {/* Footer */}
-          <footer className="bg-white dark:bg-gray-900 mt-12 pt-8 rounded border-t-2 border-pink-600 dark:border-pink-500 transition-colors">
-            <div className="max-w-7xl mx-auto px-4 flex flex-wrap justify-between gap-8">
-              <div>
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">
-                  Company
-                </h4>
-                <ul className="space-y-2">
-                  <li>
-                    <a
-                      onClick={() => navigate("/about-us")}
-                      className="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-colors cursor-pointer"
+                <div className="relative">
+                  <h3 className="text-3xl sm:text-4xl font-bold text-white mb-6">
+                    Ready to Transform Your Health Journey?
+                  </h3>
+                  <p className="text-lg sm:text-xl text-purple-100 mb-8 max-w-2xl mx-auto">
+                    Join thousands of women who have taken control of their health with Herizon's intelligent platform.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button
+                      onClick={() => navigate("/Signup")}
+                      className="bg-white text-purple-600 px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold hover:bg-gray-100 transform transition-all duration-500 hover:scale-105 shadow-2xl border-0"
                     >
-                      About Us
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="https://www.linkedin.com/company/Herizon/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-colors cursor-pointer"
+                      Get Started Free
+                    </button>
+                    <button
+                      onClick={() => navigate("/plans")}
+                      className="border-2 border-white/30 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold hover:bg-white/10 transform transition-all duration-500 hover:scale-105"
                     >
-                      Careers
-                    </a>
-                  </li>
-                </ul>
+                      View Plans
+                    </button>
+                  </div>
+                  <p className="text-purple-200 text-sm mt-6">
+                    No credit card required • 30-day free trial
+                  </p>
+                </div>
               </div>
-              <div>
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">
-                  Resources
-                </h4>
-                <ul className="space-y-2">
-                  <li>
-                    <a href="/blogs" className="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-colors">
-                      Blog
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/help-center" className="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-colors">
-                      Help Center
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/community" className="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-colors">
-                      Community
-                    </a>
-                  </li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">
-                  Legal
-                </h4>
-                <ul className="space-y-2">
-                  <li>
-                    <a href="/privacy-policy" className="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-colors">
-                      Privacy Policy
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/terms-of-service" className="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-colors">
-                      Terms of Service
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/cookie-policy" className="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-colors">
-                      Cookie Policy
-                    </a>
-                  </li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">
-                  Connect
-                </h4>
-                <a
-                  href="https://www.linkedin.com/company/Herizon/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="LinkedIn"
-                  className="flex items-center justify-center w-12 h-12 bg-pink-600 rounded-full text-white transition-all duration-300 transform hover:scale-110 shadow-md hover:bg-pink-700"
-                >
-                  <FaLinkedin size={24} className="text-white" />
-                </a>
-              </div>
-            </div>
-            <div className="w-full mt-8 p-4 border-t border-pink-800 dark:border-pink-500">
-              <div className="max-w-7xl mx-auto px-4 text-center">
-                <p className="text-gray-700 dark:text-gray-100 text-sm">
-                  &copy; 2025 Herizon. All rights reserved.
-                </p>
-              </div>
-            </div>
-          </footer>
-        </div>
-      </main>
+            </section>
+
+            <FAQSection />
+            <EnhancedFooter />
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
 
-const Card = ({ children, className }) => {
+// Enhanced UI Components - ADDED BACK ALL MISSING COMPONENTS
+const FeatureVisualCard = ({ icon, title, value, subtitle, color }) => {
+  const colorClasses = {
+    purple: "from-purple-500 to-pink-500",
+    pink: "from-pink-500 to-rose-500",
+    blue: "from-blue-500 to-cyan-500",
+    green: "from-green-500 to-emerald-500"
+  };
+
+  return (
+    <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-2xl p-4 border border-white/50 dark:border-gray-700/50 shadow-lg">
+      <div className={`w-12 h-12 bg-gradient-to-br ${colorClasses[color]} rounded-xl flex items-center justify-center text-white mb-3`}>
+        {icon}
+      </div>
+      <div className="text-2xl font-bold text-gray-900 dark:text-white">{value}</div>
+      <div className="text-sm font-semibold text-gray-700 dark:text-gray-300">{title}</div>
+      <div className="text-xs text-gray-500 dark:text-gray-400">{subtitle}</div>
+    </div>
+  );
+};
+
+const ProgressBar = ({ label, percentage, color }) => {
+  const colorClasses = {
+    purple: "bg-gradient-to-r from-purple-500 to-pink-500",
+    pink: "bg-gradient-to-r from-pink-500 to-rose-500",
+    blue: "bg-gradient-to-r from-blue-500 to-cyan-500"
+  };
+
+  return (
+    <div className="space-y-2">
+      <div className="flex justify-between text-sm">
+        <span className="font-medium text-gray-700 dark:text-gray-300">{label}</span>
+        <span className="font-semibold text-gray-600 dark:text-gray-400">{percentage}%</span>
+      </div>
+      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+        <div
+          className={`h-2 rounded-full ${colorClasses[color]} transition-all duration-1000 ease-out`}
+          style={{ width: `${percentage}%` }}
+        ></div>
+      </div>
+    </div>
+  );
+};
+
+const FeatureCard = ({ icon, title, description, gradient, stats, index, onClick }) => {
   return (
     <div
-      className={`bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-[1.02] ${className}`}
+      onClick={onClick}
+      className="group relative bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-2xl transform transition-all duration-500 hover:scale-105 cursor-pointer overflow-hidden"
     >
+      {/* Animated Background */}
+      <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`}></div>
+
+      {/* Icon */}
+      <div className={`relative w-14 h-14 bg-gradient-to-br ${gradient} rounded-2xl flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform duration-500`}>
+        {icon}
+      </div>
+
+      {/* Content */}
+      <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+        {title}
+      </h3>
+      <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
+        {description}
+      </p>
+
+      {/* Stats */}
+      <div className="text-sm font-semibold text-purple-600 dark:text-purple-400">
+        {stats}
+      </div>
+
+      {/* Hover Arrow */}
+      <div className="absolute bottom-6 right-6 text-purple-600 dark:text-purple-400 opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all duration-500">
+        <ArrowRight className="w-5 h-5" />
+      </div>
+    </div>
+  );
+};
+
+const StatCard = ({ number, label, icon, color }) => {
+  const colorClasses = {
+    purple: "from-purple-500 to-pink-500",
+    pink: "from-pink-500 to-rose-500",
+    blue: "from-blue-500 to-cyan-500",
+    green: "from-green-500 to-emerald-500"
+  };
+
+  return (
+    <div className="group bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-500">
+      <div className={`w-12 h-12 bg-gradient-to-br ${colorClasses[color]} rounded-2xl flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform duration-500`}>
+        {icon}
+      </div>
+      <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        {number}
+      </div>
+      <div className="text-gray-600 dark:text-gray-300 font-medium">
+        {label}
+      </div>
+    </div>
+  );
+};
+
+const StepCard = ({ number, title, description, icon, color }) => {
+  const colorClasses = {
+    purple: "text-purple-600 dark:text-purple-400",
+    pink: "text-pink-600 dark:text-pink-400",
+    blue: "text-blue-600 dark:text-blue-400"
+  };
+
+  return (
+    <div className="group text-center bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-500">
+      <div className={`text-5xl font-black opacity-10 mb-4 ${colorClasses[color]} group-hover:opacity-20 transition-opacity duration-500`}>
+        {number}
+      </div>
+      <div className={`w-16 h-16 mx-auto mb-6 rounded-2xl flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-500 ${color === 'purple' ? 'bg-gradient-to-br from-purple-500 to-pink-500' :
+          color === 'pink' ? 'bg-gradient-to-br from-pink-500 to-rose-500' :
+            'bg-gradient-to-br from-blue-500 to-cyan-500'
+        }`}>
+        {icon}
+      </div>
+      <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+        {title}
+      </h3>
+      <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+        {description}
+      </p>
+    </div>
+  );
+};
+
+const TestimonialCard = ({ quote, author, role, rating }) => {
+  return (
+    <div className="group bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-500">
+      <div className="flex items-center gap-2 mb-4">
+        {[...Array(5)].map((_, i) => (
+          <Star
+            key={i}
+            className={`w-5 h-5 ${i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
+          />
+        ))}
+      </div>
+      <p className="text-gray-600 dark:text-gray-300 italic mb-6 leading-relaxed">
+        "{quote}"
+      </p>
+      <div className="flex items-center gap-4">
+        <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-semibold">
+          {author.split(' ').map(n => n[0]).join('')}
+        </div>
+        <div>
+          <p className="font-semibold text-gray-900 dark:text-white">
+            {author}
+          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {role}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const EnhancedFooter = () => {
+  const navigate = useNavigate();
+
+  return (
+    <footer className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-700">
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+          <div className="lg:col-span-2">
+            <h4 className="font-bold text-2xl bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+              Herizon
+            </h4>
+            <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-md">
+              The intelligent women's health platform combining AI-powered insights with compassionate care.
+            </p>
+            <div className="flex space-x-4">
+              {[FaLinkedin, FaTwitter, FaInstagram].map((Icon, index) => (
+                <a
+                  key={index}
+                  href="#"
+                  className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center hover:bg-purple-100 dark:hover:bg-purple-900/20 transition-colors duration-300"
+                >
+                  <Icon className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400" />
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {[
+            {
+              title: "Product",
+              links: ["Features", "Pricing", "Case Studies", "API"]
+            },
+            {
+              title: "Resources",
+              links: ["Blog", "Help Center", "Community", "Research"]
+            },
+            {
+              title: "Company",
+              links: ["About", "Careers", "Contact", "Security"]
+            }
+          ].map((section, index) => (
+            <div key={index}>
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-4">
+                {section.title}
+              </h4>
+              <ul className="space-y-2">
+                {section.links.map((link, linkIndex) => (
+                  <li key={linkIndex}>
+                    <a href="#" className="text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-300">
+                      {link}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        <div className="border-t border-gray-200 dark:border-gray-700 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+          <p className="text-gray-600 dark:text-gray-300 text-sm">
+            © 2025 Herizon. All rights reserved.
+          </p>
+          <div className="flex space-x-6 mt-4 md:mt-0">
+            {['Privacy', 'Terms', 'Cookies'].map((item) => (
+              <a key={item} href="#" className="text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 text-sm transition-colors duration-300">
+                {item}
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
+// Base component
+const Card = ({ children, className = "" }) => {
+  return (
+    <div className={`bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-xl border border-gray-100 dark:border-gray-700 transition-all duration-300 ${className}`}>
       {children}
     </div>
   );
 };
 
-const FeatureOverview = ({ icon, title, description }) => {
-  return (
-    <div className="flex items-start space-x-4">
-      <div className="flex-shrink-0">{icon}</div>
-      <div>
-        <h4 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">
-          {title}
-        </h4>
-        <p className="text-gray-700 dark:text-gray-300">{description}</p>
-      </div>
-    </div>
-  );
-};
-
-const BenefitItem = ({ title, description }) => {
-  return (
-    <div className="border-l-4 border-pink-500 pl-4 dark:border-pink-700 bg-white dark:bg-gray-900 hover:bg-pink-200 hover:scale-105 transition-all duration-300 ease-in-out transform rounded-md">
-
-      <h4 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">
-        {title}
-      </h4>
-      <p className="text-gray-700 dark:text-gray-300">{description}</p>
-    </div>
-  );
-};
-
-const StepCard = ({ number, title, description }) => {
-  return (
-    <div className="flex flex-col items-center text-center">
-      <div className="w-12 h-12 bg-pink-100 dark:bg-pink-900 rounded-full flex items-center justify-center mb-4">
-        <span className="text-2xl font-bold text-pink-600 dark:text-pink-400">
-          {number}
-        </span>
-      </div>
-      <h4 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">
-        {title}
-      </h4>
-      <p className="text-gray-700 dark:text-gray-300">{description}</p>
-    </div>
-  );
-};
-
-const TestimonialCard = ({ quote, author }) => {
-  return (
-    <div className="bg-pink-100 border border-pink-700 dark:border-pink-700 p-4 rounded-lg transform transition-all duration-300 hover:scale-105 shadow-md">
-      <p className="italic mb-2 text-gray-800 dark:text-pink-400">"{quote}"</p>
-      <p className="font-semibold text-right text-gray-900 dark:text-pink-800">
-        - {author}
-      </p>
-    </div>
-  );
-};
-
-const BlogPostCard = ({ title, excerpt, date }) => {
-  return (
-    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-      <h4 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">
-        {title}
-      </h4>
-      <p className="text-gray-700 dark:text-gray-300 mb-2">{excerpt}</p>
-      <p className="text-sm text-gray-600 dark:text-gray-400">{date}</p>
-    </div>
-  );
-};
-
-const FAQItem = ({ question, answer }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <div className="border-b border-pink-500 dark:border-gray-700 pb-4">
-
-      <button
-        className="flex justify-between items-center w-full text-left"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <span className="font-semibold text-gray-900 dark:text-gray-100">
-          {question}
-        </span>
-        <span>{isOpen ? "-" : "+"}</span>
-      </button>
-      {isOpen && (
-        <p className="mt-2 text-gray-700 dark:text-gray-300">{answer}</p>
-      )}
-    </div>
-  );
-};
-
-const SuccessStoryCard = ({ name, story, improvement }) => {
-  return (
-
-    <div className="bg-pink-50 dark:bg-pink-50 p-6 rounded-lg border border-pink-700 dark:border-pink-700 borderw-4 transform transition-all duration-300 hover:scale-105 shadow-md">
-
-      <h4 className="text-lg font-semibold mb-2 text-pink-600 dark:text-pink-800">
-        {name}
-      </h4>
-      <p className="text-pink-400 dark:text-pink-400 mb-4">"{story}"</p>
-      <div className="flex items-center">
-        <Check className="text-green-500 mr-2" />
-        <span className="text-green-500 dark:text-green-500 font-medium">
-          {improvement}
-        </span>
-      </div>
-    </div>
-  );
-};
-
-const ExpertInsightCard = ({ expert, insight }) => {
-  return (
-    <div className="border border-pink-700 dark:border-pink-700 bg-pink-100 dark:bg-pink-100 p-6 rounded-lg transform transition-all duration-300 hover:scale-105 shadow-md">
-      <p className="text-gray-800 dark:text-pink-400">"{insight}"</p>
-      <p className="font-semibold text-right text-gray-900 dark:text-pink-800">
-        - {expert}
-      </p>
-    </div>
-  );
-};
-
-const CommunityHighlightCard = ({ title, description }) => {
-  return (
-
-    <div className="bg-pink-100 border border-pink-700 dark:border-pink-700  rounded-lg p-4 transform transition-all duration-300 hover:scale-105 shadow-md">
-      <h4 className="text-lg font-semibold mb-2 text-gray-900 dark:text-pink-800">
-
-        {title}
-      </h4>
-      <p className="text-gray-700 dark:text-pink-400">{description}</p>
-    </div>
-  );
-};
-
-const AppFeatureCard = ({ title, description, icon }) => {
-  return (
-    <div className="flex items-start space-x-4">
-      <div className="flex-shrink-0 bg-pink-100 dark:bg-pink-900 p-3 rounded-full">
-        {icon}
-      </div>
-      <div>
-        <h4 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">
-          {title}
-        </h4>
-        <p className="text-gray-700 dark:text-gray-300">{description}</p>
-      </div>
-    </div>
-  );
-};
-
-const PartnerLogo = ({ name }) => {
-  return (
-    <div className="bg-gray-200 dark:bg-gray-700 h-20 rounded-lg flex items-center justify-center">
-      <span className="text-gray-100 dark:text-gray-400 font-medium">
-        {name}
-      </span>
-    </div>
-  );
-};
-
-const style = document.createElement("style");
-style.textContent = `
-  @keyframes pulse {
-    0%, 100% {
-      opacity: 0;
-    }
-    50% {
-      opacity: 0.5;
-    }
-  }
-  @keyframes gradient {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-
-  .animate-gradient {
-    animation: gradient 8s linear infinite;
-  }
-`;
-document.head.appendChild(style);
+export default Landing;
