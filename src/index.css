@@ -1,10 +1,26 @@
-:root {
+/* Ensure SideBar has proper positioning */
+.sidebar-fixed {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: 16rem; /* 64 */
+  z-index: 30;
+  overflow-y: auto;
+}
+
+/* Ensure main content has proper spacing */
+.main-content {
+  position: relative;
+  z-index: 10;
+}
+/* :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
+  color: rgba(247, 104, 104, 0.87);
   background-color: #242424;
 
   font-synthesis: none;
@@ -70,7 +86,7 @@ button:focus-visible {
   }
 }
 
-/* Emergency fixes - add to src/styles/index.css */
+/* Emergency fixes - add to src/styles/index.css 
 * {
   box-sizing: border-box !important;
 }
@@ -83,7 +99,7 @@ button:focus-visible {
   padding-right: 0 !important;
 }
 
-/* Force proper content alignment */
+/* Force proper content alignment 
 .content-area {
   width: 100% !important;
   max-width: 1200px !important;
@@ -97,7 +113,7 @@ button:focus-visible {
   overflow-x: hidden !important;
 }
 
-/*Memory Game css by VJLIVE*/
+/*Memory Game css by VJLIVE
 .perspective {
   perspective: 1000px;
 }
@@ -126,13 +142,13 @@ button:focus-visible {
   font-size: 2rem;
   font-weight: bold;
   background-color: white;
-  color: #ec4899; /* Tailwind pink-500 */
+  color: #ec4899; /* Tailwind pink-500 
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .dark .card-face {
-  background-color: #1f2937; /* gray-800 */
-  color: #f9a8d4; /* pink-300 */
+  background-color: #1f2937; /* gray-800 
+  color: #f9a8d4; /* pink-300 
 }
 
 .card-back {
@@ -140,4 +156,4 @@ button:focus-visible {
 }
 
 
-
+ */

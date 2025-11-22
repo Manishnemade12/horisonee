@@ -8,7 +8,7 @@ import { ThemeProvider } from "./context/ThemeContext";
 import HerizonLoader from "./components/loader";
 
 const local_url = "http://localhost:3000/";
-const render_url = "https://Herizon.onrender.com/";
+const render_url = "https://backend-2-nx7f.onrender.com/";
 const server_url = import.meta.env.VITE_SERVER_URL ;
 
 export function ProtectedRouteWrapper({ Component }) {

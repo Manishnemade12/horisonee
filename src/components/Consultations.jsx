@@ -44,8 +44,8 @@ import {
 } from "@react-google-maps/api";
 import { Dialog, Transition } from "@headlessui/react";
 import { format, addDays } from "date-fns";
-import SideBar from "./SideBar"; // Assuming this file exists and contains the Sidebar component
-import useScreenSize from "../hooks/useScreenSize"; // Assuming this file exists and contains the useScreenSize hook
+import SideBar from "./SideBar";
+import useScreenSize from "../hooks/useScreenSize";
 
 const libraries = ["places"];
 
@@ -125,8 +125,16 @@ export function Consultations() {
   const [bookingStep, setBookingStep] = useState(1);
   const [paymentMethod, setPaymentMethod] = useState("");
 
+  const { width } = useScreenSize();
+
+  // Toggle sidebar
   const toggleSidebar = () => {
     setSidebarVisible(!sidebarVisible);
+  };
+
+  // Close sidebar
+  const closeSidebar = () => {
+    setSidebarVisible(false);
   };
 
   const { isLoaded, loadError } = useLoadScript({
@@ -874,190 +882,214 @@ export function Consultations() {
     setIsBookingModalOpen(true);
   };
 
-  const { width } = useScreenSize();
-
   return (
-    <div className={`flex h-screen`}>
-      <SideBar
-        sidebarVisible={sidebarVisible}
-        setSidebarVisible={setSidebarVisible}
-        activeLink={8}
-      />
-      {width > 816 && (
-        <button
-          onClick={toggleSidebar}
-          className="fixed left-0 top-0 w-10 z-10 p-2 bg-pink-600 text-white rounded-r-md  transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50"
-          style={{
-            transform: sidebarVisible ? "translateX(256px)" : "translateX(0)",
-          }}
-          aria-label={sidebarVisible ? "Hide sidebar" : "Show sidebar"}
-        >
-          <ChevronRight
-            size={14}
-            className={`transition-transform duration-300 block m-auto ${
-              sidebarVisible ? "rotate-180" : "rotate-0"
-            }`}
-          />
-        </button>
+    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Sidebar - Fixed positioning for mobile, static for desktop */}
+      <div className={`
+        ${width <= 816 
+          ? `fixed inset-y-0 left-0 z-40 transform ${sidebarVisible ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out`
+          : `flex-shrink-0 ${sidebarVisible ? 'w-64' : 'w-0'} transition-all duration-300 ease-in-out`
+        }
+      `}>
+        <SideBar
+          sidebarVisible={sidebarVisible}
+          setSidebarVisible={setSidebarVisible}
+          activeLink={8}
+          onClose={closeSidebar}
+        />
+      </div>
+
+      {/* Mobile Overlay */}
+      {width <= 816 && sidebarVisible && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-30"
+          onClick={closeSidebar}
+        />
       )}
 
-      {/* Main content */}
-
-      <main
-        className={`flex-1 p-8 overflow-auto bg-white dark:bg-gray-900 transition-all duration-300 ease-in-out ${
-          sidebarVisible ? "ml-64" : "ml-0"
-        }`}
-      >
-        <div className="container mx-auto py-8 px-4">
-          {/* Header (keep the same as before) */}
-          <div className="flex justify-between items-center mb-8">
-            <motion.h2
-              className="text-4xl font-bold text-center text-pink-600 dark:text-pink-400"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              Expert Consultations
-            </motion.h2>
-          </div>
-
-          {/* Enhanced Search Section */}
-          {isLoaded && (
-            <motion.div
-              className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 mb-8"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <h2 className="text-2xl font-semibold mb-4 dark:text-white">
-                Find Nearby Gynecologists
-              </h2>
-
-              <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                <div className="flex-1 relative">
-                  <div className="relative flex items-center">
-                    <input
-                      id="search"
-                      type="text"
-                      placeholder="Enter location or 'Near Me'"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                      className="w-full pl-3 pr-24 py-2 text-gray-900 bg-white dark:text-white border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-900"
-                    />
-                    <div className="absolute right-0 flex space-x-1">
-                      <button
-                        onClick={() => handleSearch()}
-                        disabled={isSearching}
-                        className="bg-pink-500 text-white px-4 py-2 rounded-r-md hover:bg-pink-600 transition-colors duration-300 disabled:opacity-50"
-                      >
-                        {isSearching ? "Searching..." : "Search"}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  onClick={getUserLocation}
-                  disabled={isSearching}
-                  className="bg-pink-500 text-white py-2 px-4 rounded-md hover:bg-pink-600 transition-colors duration-300 disabled:opacity-50"
-                >
-                  <MapPin className="inline-block mr-2 h-4 w-4" />
-                  Near Me
-                </button>
+      {/* Main Content Area - Fixed layout to prevent overlap */}
+      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${
+        sidebarVisible && width > 816 ? 'ml-0' : 'ml-0'
+      }`}>
+        {/* Top Bar with Toggle Button */}
+        <div className="sticky top-0 z-20 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between p-4">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={toggleSidebar}
+                className="p-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg shadow-lg hover:shadow-xl transition-all"
+              >
+                <ChevronRight 
+                  size={20} 
+                  className={`transition-transform duration-300 ${
+                    sidebarVisible ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              <div>
+                <h1 className="text-xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
+                  Expert Consultations
+                </h1>
               </div>
-
-              {searchError && (
-                <div className="text-red-500 mb-4 flex items-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 mr-2"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  {searchError}
-                </div>
-              )}
-
-              <div className="h-96 w-full rounded-lg overflow-hidden relative">
-                {isSearching && (
-                  <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10">
-                    <Loader2 className="animate-spin text-white h-8 w-8" />
-                  </div>
-                )}
-                <GoogleMap
-                  mapContainerStyle={{ width: "100%", height: "100%" }}
-                  center={mapCenter}
-                  zoom={12}
-                  onLoad={onMapLoad}
-                  onDragEnd={handleMapDrag}
-                >
-                  {markers.map((marker) => (
-                    <Marker
-                      key={marker.id}
-                      position={marker.location}
-                      onClick={() => setSelectedMarker(marker)}
-                    >
-                      {selectedMarker?.id === marker.id && (
-                        <InfoWindow
-                          onCloseClick={() => setSelectedMarker(null)}
-                        >
-                          <div className="p-2 text-sm">
-                            <h3 className="font-semibold">{marker.name}</h3>
-                            <p>Rating: {marker.rating || "N/A"}</p>
-                            <p>Address: {marker.address}</p>
-                          </div>
-                        </InfoWindow>
-                      )}
-                    </Marker>
-                  ))}
-                </GoogleMap>
-              </div>
-            </motion.div>
-          )}
-
-          <div className="flex justify-between items-center mb-4">
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center space-x-2 text-white bg-[#e73e8f] dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 px-4 py-2 rounded-md"
-            >
-              <Filter className="h-5 w-5" />
-              <span className="text-white ">{showFilters ? "Hide Filters" : "Show Filters"}</span>
-            </button>
-            
-            <SortingControls sortBy={sortBy} setSortBy={setSortBy} />
-          </div>
-
-          <FilterSection
-            filters={filters}
-            setFilters={setFilters}
-            showFilters={showFilters}
-          />
-
-          {/* Doctors List (use the filtered and sorted list) */}
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {isSearching ? (
-              Array(6)
-                .fill()
-                .map((_, i) => <DoctorCardSkeleton key={i} />)
-            ) : filteredAndSortedDoctors.length > 0 ? (
-              filteredAndSortedDoctors.map((doctor) => (
-                <DoctorCard key={doctor.id} doctor={doctor} />
-              ))
-            ) : (
-              <div className="text-center text-gray-500 dark:text-gray-400 col-span-full py-8">
-                No doctors found. Try adjusting your search criteria.
-              </div>
-            )}
+            </div>
           </div>
         </div>
-      </main>
+
+        {/* Main Content */}
+        <main className="flex-1 overflow-auto">
+          <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-8">
+            {/* Header */}
+            <motion.div
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              className="text-center md:text-left"
+            >
+              <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
+                Expert Consultations
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400 mt-2 text-lg">
+                Find the best gynecologists near you
+              </p>
+            </motion.div>
+
+            {/* Enhanced Search Section */}
+            {isLoaded && (
+              <motion.div
+                className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 mb-8"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                <h2 className="text-2xl font-semibold mb-4 dark:text-white">
+                  Find Nearby Gynecologists
+                </h2>
+
+                <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                  <div className="flex-1 relative">
+                    <div className="relative flex items-center">
+                      <input
+                        id="search"
+                        type="text"
+                        placeholder="Enter location or 'Near Me'"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                        className="w-full pl-3 pr-24 py-2 text-gray-900 bg-white dark:text-white border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-900"
+                      />
+                      <div className="absolute right-0 flex space-x-1">
+                        <button
+                          onClick={() => handleSearch()}
+                          disabled={isSearching}
+                          className="bg-pink-500 text-white px-4 py-2 rounded-r-md hover:bg-pink-600 transition-colors duration-300 disabled:opacity-50"
+                        >
+                          {isSearching ? "Searching..." : "Search"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={getUserLocation}
+                    disabled={isSearching}
+                    className="bg-pink-500 text-white py-2 px-4 rounded-md hover:bg-pink-600 transition-colors duration-300 disabled:opacity-50"
+                  >
+                    <MapPin className="inline-block mr-2 h-4 w-4" />
+                    Near Me
+                  </button>
+                </div>
+
+                {searchError && (
+                  <div className="text-red-500 mb-4 flex items-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 mr-2"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    {searchError}
+                  </div>
+                )}
+
+                <div className="h-96 w-full rounded-lg overflow-hidden relative">
+                  {isSearching && (
+                    <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10">
+                      <Loader2 className="animate-spin text-white h-8 w-8" />
+                    </div>
+                  )}
+                  <GoogleMap
+                    mapContainerStyle={{ width: "100%", height: "100%" }}
+                    center={mapCenter}
+                    zoom={12}
+                    onLoad={onMapLoad}
+                    onDragEnd={handleMapDrag}
+                  >
+                    {markers.map((marker) => (
+                      <Marker
+                        key={marker.id}
+                        position={marker.location}
+                        onClick={() => setSelectedMarker(marker)}
+                      >
+                        {selectedMarker?.id === marker.id && (
+                          <InfoWindow
+                            onCloseClick={() => setSelectedMarker(null)}
+                          >
+                            <div className="p-2 text-sm">
+                              <h3 className="font-semibold">{marker.name}</h3>
+                              <p>Rating: {marker.rating || "N/A"}</p>
+                              <p>Address: {marker.address}</p>
+                            </div>
+                          </InfoWindow>
+                        )}
+                      </Marker>
+                    ))}
+                  </GoogleMap>
+                </div>
+              </motion.div>
+            )}
+
+            <div className="flex justify-between items-center mb-4">
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex items-center space-x-2 text-white bg-[#e73e8f] dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 px-4 py-2 rounded-md"
+              >
+                <Filter className="h-5 w-5" />
+                <span className="text-white ">{showFilters ? "Hide Filters" : "Show Filters"}</span>
+              </button>
+              
+              <SortingControls sortBy={sortBy} setSortBy={setSortBy} />
+            </div>
+
+            <FilterSection
+              filters={filters}
+              setFilters={setFilters}
+              showFilters={showFilters}
+            />
+
+            {/* Doctors List */}
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {isSearching ? (
+                Array(6)
+                  .fill()
+                  .map((_, i) => <DoctorCardSkeleton key={i} />)
+              ) : filteredAndSortedDoctors.length > 0 ? (
+                filteredAndSortedDoctors.map((doctor) => (
+                  <DoctorCard key={doctor.id} doctor={doctor} />
+                ))
+              ) : (
+                <div className="text-center text-gray-500 dark:text-gray-400 col-span-full py-8">
+                  No doctors found. Try adjusting your search criteria.
+                </div>
+              )}
+            </div>
+          </div>
+        </main>
+      </div>
 
       {selectedDoctor && (
         <BookingModal

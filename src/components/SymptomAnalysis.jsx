@@ -42,6 +42,7 @@ import {
 } from "lucide-react";
 import SideBar from "./SideBar";
 import useScreenSize from "../hooks/useScreenSize";
+
 const commonSymptoms = [
   "Abdominal cramps",
   "Fatigue",
@@ -54,7 +55,7 @@ const commonSymptoms = [
   "Acne",
   "Insomnia",
 ];
-const customSymptom=[]
+
 const symptomCategories = {
   "Pain & Discomfort": [
     "Abdominal cramps",
@@ -100,7 +101,6 @@ const severityGuides = {
     moderate: "Distracting, difficulty concentrating",
     severe: "Intense pain, sensitivity to light/sound",
   },
-  // Add more guides for other symptoms
 };
 
 const emergencySymptoms = [
@@ -127,38 +127,26 @@ export function SymptomAnalysis() {
   const [symptomHistory, setSymptomHistory] = useState([]);
   const [showEmergencyAlert, setShowEmergencyAlert] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState([]);
-  const toggleCategory = (category) => {
-  setSelectedCategories((prev) =>
-    prev.includes(category)
-      ? prev.filter((c) => c !== category)
-      : [...prev, category]
-  );
-};
-
   const [symptomPatterns, setSymptomPatterns] = useState({});
   const [showSeverityGuide, setShowSeverityGuide] = useState(false);
   const [currentSymptomGuide, setCurrentSymptomGuide] = useState(null);
   const [cycleDay, setCycleDay] = useState(null);
   const [recentPatterns, setRecentPatterns] = useState([]);
 
-  const SidebarLink = ({ icon, label, onClick, active = false }) => {
-    return (
-      <button
-        onClick={onClick}
-        className={`flex items-center space-x-2 w-full px-2 py-2 rounded-lg transition-colors ${
-          active
-            ? "bg-pink-200 dark:bg-pink-900 text-pink-800 dark:text-pink-200"
-            : "text-gray-900 dark:text-gray-300 hover:bg-pink-100 dark:hover:bg-gray-700"
-        }`}
-      >
-        {icon}
-        <span>{label}</span>
-      </button>
+  const { width } = useScreenSize();
+
+  const toggleCategory = (category) => {
+    setSelectedCategories((prev) =>
+      prev.includes(category)
+        ? prev.filter((c) => c !== category)
+        : [...prev, category]
     );
   };
+
   const toggleSidebar = () => {
     setSidebarVisible(!sidebarVisible);
   };
+
   const handleSymptomToggle = (symptom) => {
     setSelectedSymptoms((prev) =>
       prev.includes(symptom)
@@ -192,18 +180,194 @@ export function SymptomAnalysis() {
     setStep(6);
   };
 
-  const renderProgressBar = () => {
-    const progress = ((step - 1) / 5) * 100;
-    return (
-      <div className="w-full bg-pink-50 rounded-full h-2.5 mb-4">
-        <div
-          className="bg-pink-300 h-2.5 rounded-full"
-          style={{ width: `${progress}%` }}
-        ></div>
-      </div>
+  // Rest of your existing functions remain the same...
+  const checkEmergencySymptoms = (symptoms) => {
+    const hasEmergency = symptoms.some((symptom) =>
+      emergencySymptoms.includes(symptom.toLowerCase())
     );
+    setShowEmergencyAlert(hasEmergency);
   };
 
+  const updateSymptomHistory = (newSymptoms) => {
+    const entry = {
+      date: new Date(),
+      symptoms: newSymptoms,
+      intensity,
+      duration,
+      cycleDay,
+    };
+    setSymptomHistory((prev) => [...prev, entry]);
+    analyzePatterns([...symptomHistory, entry]);
+  };
+
+  const analyzePatterns = (history) => {
+    const patterns = {};
+    history.forEach((entry) => {
+      entry.symptoms.forEach((symptom) => {
+        if (!patterns[symptom]) {
+          patterns[symptom] = {
+            frequency: 1,
+            commonIntensity: [entry.intensity],
+            cycleDays: [entry.cycleDay],
+          };
+        } else {
+          patterns[symptom].frequency++;
+          patterns[symptom].commonIntensity.push(entry.intensity);
+          patterns[symptom].cycleDays.push(entry.cycleDay);
+        }
+      });
+    });
+    setSymptomPatterns(patterns);
+  };
+
+  const EmergencyAlert = () => (
+    <motion.div
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 mb-6"
+    >
+      <div className="flex items-center">
+        <AlertTriangle className="h-6 w-6 text-red-500 mr-3" />
+        <div>
+          <h3 className="text-red-500 font-semibold">Emergency Warning</h3>
+          <p className="text-sm text-red-600 dark:text-red-400">
+            Some of your symptoms may require immediate medical attention.
+            Please contact emergency services or visit the nearest emergency
+            room.
+          </p>
+        </div>
+      </div>
+    </motion.div>
+  );
+
+  const SeverityGuideModal = ({ symptom, onClose }) => (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50"
+    >
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full">
+        <h3 className="text-lg font-semibold mb-4">
+          Severity Guide: {symptom}
+        </h3>
+        <div className="space-y-4">
+          {Object.entries(severityGuides[symptom] || {}).map(
+            ([level, description]) => (
+              <div
+                key={level}
+                className="p-3 rounded-lg bg-gray-50 dark:bg-gray-700 "
+              >
+                <span className="font-medium capitalize">{level}:</span>
+                <p className="text-sm mt-1">{description}</p>
+              </div>
+            )
+          )}
+        </div>
+        <button
+          onClick={onClose}
+          className="mt-6 w-full py-2 bg-pink-600 text-white rounded-md hover:bg-pink-700"
+        >
+          Close Guide
+        </button>
+      </div>
+    </motion.div>
+  );
+
+  const mockAiAnalysis = async () => {
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    // Initialize default patterns if no history exists
+    const defaultPatterns = selectedSymptoms.reduce((acc, symptom) => {
+      acc[symptom] = {
+        frequency: 1,
+        commonIntensity: [intensity],
+        cycleDays: cycleDay ? [cycleDay] : [],
+      };
+      return acc;
+    }, {});
+
+    // Use existing patterns or default ones
+    const currentPatterns =
+      Object.keys(symptomPatterns).length > 0
+        ? symptomPatterns
+        : defaultPatterns;
+
+    // Analyze patterns for better recommendations
+    const mostFrequentSymptoms = Object.entries(currentPatterns)
+      .sort(([, a], [, b]) => b.frequency - a.frequency)
+      .slice(0, 3)
+      .map(([symptom]) => symptom);
+
+    const cyclePatterns = selectedSymptoms
+      .map((symptom) => {
+        const pattern = currentPatterns[symptom];
+        if (pattern && pattern.cycleDays && pattern.cycleDays.length > 0) {
+          const commonCycleDays = pattern.cycleDays.reduce((acc, day) => {
+            if (day) {
+              acc[day] = (acc[day] || 0) + 1;
+            }
+            return acc;
+          }, {});
+          return { symptom, commonCycleDays };
+        }
+        return null;
+      })
+      .filter(Boolean);
+
+    const cycleRecommendation = cycleDay
+      ? `Your symptoms are being recorded for day ${cycleDay} of your cycle`
+      : "Consider tracking your cycle day for better pattern analysis";
+
+    return {
+      possibleCauses: [
+        "Hormonal changes",
+        "Stress",
+        "Dietary factors",
+        "Sleep patterns",
+        "Exercise habits",
+      ],
+      suggestions: [
+        "Get plenty of rest",
+        "Stay hydrated",
+        "Consider speaking with a healthcare provider",
+        "Track your symptoms regularly",
+        "Practice stress management techniques",
+      ],
+      communityInsights: {
+        similarExperiences: 75,
+        commonRelief: "Warm compress and over-the-counter pain relievers",
+        percentageSeekingMedicalAttention: 30,
+      },
+      patterns: {
+        frequentSymptoms: mostFrequentSymptoms,
+        cyclePatterns,
+        recommendations: [
+          cycleRecommendation,
+          "Consider tracking these patterns with your healthcare provider",
+          "Preventive measures may be more effective when started before these days",
+        ],
+      },
+      lifestyle: {
+        diet: [
+          "Increase water intake",
+          "Reduce caffeine consumption",
+          "Add anti-inflammatory foods",
+        ],
+        exercise: [
+          "Light yoga or stretching",
+          "Moderate cardio exercises",
+          "Regular walking",
+        ],
+        stress: [
+          "Practice deep breathing",
+          "Try meditation",
+          "Ensure adequate sleep",
+        ],
+      },
+    };
+  };
+
+  // Step content rendering functions remain the same...
   const renderStep = () => {
     switch (step) {
       case 1:
@@ -263,7 +427,6 @@ export function SymptomAnalysis() {
                 ))}
               </div>
             </div>
-
 
             {/* Symptom Selection */}
             <div className="mb-6">
@@ -401,6 +564,7 @@ export function SymptomAnalysis() {
             </motion.button>
           </motion.div>
         );
+      // ... rest of your step rendering functions remain exactly the same
       case 2:
         return (
           <motion.div
@@ -847,269 +1011,85 @@ export function SymptomAnalysis() {
     }
   };
 
-  const checkEmergencySymptoms = (symptoms) => {
-    const hasEmergency = symptoms.some((symptom) =>
-      emergencySymptoms.includes(symptom.toLowerCase())
-    );
-    setShowEmergencyAlert(hasEmergency);
-  };
-
-  const updateSymptomHistory = (newSymptoms) => {
-    const entry = {
-      date: new Date(),
-      symptoms: newSymptoms,
-      intensity,
-      duration,
-      cycleDay,
-    };
-    setSymptomHistory((prev) => [...prev, entry]);
-    analyzePatterns([...symptomHistory, entry]);
-  };
-
-  const analyzePatterns = (history) => {
-    const patterns = {};
-    history.forEach((entry) => {
-      entry.symptoms.forEach((symptom) => {
-        if (!patterns[symptom]) {
-          patterns[symptom] = {
-            frequency: 1,
-            commonIntensity: [entry.intensity],
-            cycleDays: [entry.cycleDay],
-          };
-        } else {
-          patterns[symptom].frequency++;
-          patterns[symptom].commonIntensity.push(entry.intensity);
-          patterns[symptom].cycleDays.push(entry.cycleDay);
-        }
-      });
-    });
-    setSymptomPatterns(patterns);
-  };
-
-  const EmergencyAlert = () => (
-    <motion.div
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 mb-6"
-    >
-      <div className="flex items-center">
-        <AlertTriangle className="h-6 w-6 text-red-500 mr-3" />
-        <div>
-          <h3 className="text-red-500 font-semibold">Emergency Warning</h3>
-          <p className="text-sm text-red-600 dark:text-red-400">
-            Some of your symptoms may require immediate medical attention.
-            Please contact emergency services or visit the nearest emergency
-            room.
-          </p>
-        </div>
-      </div>
-    </motion.div>
-  );
-
-  const SeverityGuideModal = ({ symptom, onClose }) => (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50"
-    >
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full">
-        <h3 className="text-lg font-semibold mb-4">
-          Severity Guide: {symptom}
-        </h3>
-        <div className="space-y-4">
-          {Object.entries(severityGuides[symptom] || {}).map(
-            ([level, description]) => (
-              <div
-                key={level}
-                className="p-3 rounded-lg bg-gray-50 dark:bg-gray-700 "
-              >
-                <span className="font-medium capitalize">{level}:</span>
-                <p className="text-sm mt-1">{description}</p>
-              </div>
-            )
-          )}
-        </div>
-        <button
-          onClick={onClose}
-          className="mt-6 w-full py-2 bg-pink-600 text-white rounded-md hover:bg-pink-700"
-        >
-          Close Guide
-        </button>
-      </div>
-    </motion.div>
-  );
-
-  const mockAiAnalysis = async () => {
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    // Initialize default patterns if no history exists
-    const defaultPatterns = selectedSymptoms.reduce((acc, symptom) => {
-      acc[symptom] = {
-        frequency: 1,
-        commonIntensity: [intensity],
-        cycleDays: cycleDay ? [cycleDay] : [],
-      };
-      return acc;
-    }, {});
-
-    // Use existing patterns or default ones
-    const currentPatterns =
-      Object.keys(symptomPatterns).length > 0
-        ? symptomPatterns
-        : defaultPatterns;
-
-    // Analyze patterns for better recommendations
-    const mostFrequentSymptoms = Object.entries(currentPatterns)
-      .sort(([, a], [, b]) => b.frequency - a.frequency)
-      .slice(0, 3)
-      .map(([symptom]) => symptom);
-
-    const cyclePatterns = selectedSymptoms
-      .map((symptom) => {
-        const pattern = currentPatterns[symptom];
-        if (pattern && pattern.cycleDays && pattern.cycleDays.length > 0) {
-          const commonCycleDays = pattern.cycleDays.reduce((acc, day) => {
-            if (day) {
-              acc[day] = (acc[day] || 0) + 1;
-            }
-            return acc;
-          }, {});
-          return { symptom, commonCycleDays };
-        }
-        return null;
-      })
-      .filter(Boolean);
-
-    const cycleRecommendation = cycleDay
-      ? `Your symptoms are being recorded for day ${cycleDay} of your cycle`
-      : "Consider tracking your cycle day for better pattern analysis";
-
-    return {
-      possibleCauses: [
-        "Hormonal changes",
-        "Stress",
-        "Dietary factors",
-        "Sleep patterns",
-        "Exercise habits",
-      ],
-      suggestions: [
-        "Get plenty of rest",
-        "Stay hydrated",
-        "Consider speaking with a healthcare provider",
-        "Track your symptoms regularly",
-        "Practice stress management techniques",
-      ],
-      communityInsights: {
-        similarExperiences: 75,
-        commonRelief: "Warm compress and over-the-counter pain relievers",
-        percentageSeekingMedicalAttention: 30,
-      },
-      patterns: {
-        frequentSymptoms: mostFrequentSymptoms,
-        cyclePatterns,
-        recommendations: [
-          cycleRecommendation,
-          "Consider tracking these patterns with your healthcare provider",
-          "Preventive measures may be more effective when started before these days",
-        ],
-      },
-      lifestyle: {
-        diet: [
-          "Increase water intake",
-          "Reduce caffeine consumption",
-          "Add anti-inflammatory foods",
-        ],
-        exercise: [
-          "Light yoga or stretching",
-          "Moderate cardio exercises",
-          "Regular walking",
-        ],
-        stress: [
-          "Practice deep breathing",
-          "Try meditation",
-          "Ensure adequate sleep",
-        ],
-      },
-    };
-  };
-
-  const { width } = useScreenSize();
-
   return (
-    <div className={`flex h-screen dark:bg-[#111827]`}>
+    <div className="min-h-screen bg-zinc-100 dark:bg-zinc-900 text-zinc-800 dark:text-zinc-100 transition-colors duration-300">
+      {/* Sidebar - Fixed positioning */}
       <SideBar
         sidebarVisible={sidebarVisible}
         setSidebarVisible={setSidebarVisible}
         activeLink={11}
       />
-      {width > 816 && (
-        <button
-          onClick={toggleSidebar}
-          className="fixed left-0 top-0 w-10 z-10 p-2 bg-pink-600 text-white rounded-r-md  transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50"
-          style={{
-            transform: sidebarVisible ? "translateX(256px)" : "translateX(0)",
-          }}
-          aria-label={sidebarVisible ? "Hide sidebar" : "Show sidebar"}
-        >
-          <ChevronRight
-            size={14}
-            className={`transition-transform duration-300 block m-auto ${
-              sidebarVisible ? "rotate-180" : "rotate-0"
+      
+      {/* Main Content Area */}
+      <div className={`transition-all duration-300 ease-in-out min-h-screen ${
+        sidebarVisible && width > 816 ? "lg:ml-80" : "ml-0"
+      }`}>
+        {/* Top toggle button - only show on larger screens */}
+        {width > 816 && (
+          <button
+            onClick={toggleSidebar}
+            className={`fixed left-4 z-40 p-3 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 rounded-full shadow-lg transition-all duration-300 ease-out hover:bg-white dark:hover:bg-gray-700 hover:shadow-xl hover:scale-110 ${
+              sidebarVisible ? 'ml-64' : 'ml-2'
             }`}
-          />
-        </button>
-      )}
+            style={{ top: '24px' }}
+            aria-label={sidebarVisible ? "Hide sidebar" : "Show sidebar"}
+          >
+            <ChevronRight
+              size={20}
+              className={`transition-transform duration-300 ${
+                sidebarVisible ? "rotate-180" : "rotate-0"
+              }`}
+            />
+          </button>
+        )}
 
-      {/* Main Content */}
-      <div
-        className={`transition-all duration-300 ease-in-out ${
-          sidebarVisible ? "ml-64" : "ml-0"
-        } flex-1 dark:bg-gray-900`}
-      >
-        <div className="max-w-screen-xl mx-auto p-4 space-y-6 dark:text-gray-100">
-          {/* Header */}
-          <div className="flex justify-between items-center mb-6">
-            <h2 className={`text-3xl font-bold text-pink-700 ${sidebarVisible && width > 816 ? "pl-0" : "pl-12"}`}>
-              AI-Powered Symptom Analysis
-            </h2>
-          </div>
-          <div className="bg-white rounded-lg shadow-md p-6 dark:bg-[#111827] border-gray-800 border-[1px]">
-            {/* Progress Bar */}
-            <div className="w-full bg-pink-50 rounded-full h-2.5 mb-4">
-              <div
-                className="bg-pink-300 h-2.5 rounded-full"
-                style={{ width: `${((step - 1) / 5) * 100}%` }}
-              ></div>
+        {/* Main Content */}
+        <main className="relative">
+          <div className="max-w-screen-xl mx-auto p-4 space-y-6 dark:text-gray-100">
+            {/* Header */}
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-3xl font-bold text-pink-700">
+                AI-Powered Symptom Analysis
+              </h2>
             </div>
-            <div className="flex justify-between mb-8">
-              {[1, 2, 3, 4, 5].map((stepNumber) => (
-                <div key={stepNumber} className="flex flex-col items-center">
-                  <motion.div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                      step >= stepNumber
-                        ? "bg-pink-200 text-pink-700"
-                        : "bg-pink-50 text-gray-500"
-                    }`}
-                    animate={{
-                      scale: step === stepNumber ? 1.1 : 1,
-                      transition: { duration: 0.3 },
-                    }}
-                  >
-                    {step > stepNumber ? (
-                      <CheckCircle size={20} className="text-pink-700" />
-                    ) : (
-                      stepNumber
-                    )}
-                  </motion.div>
-                  <div className="text-xs mt-2 text-gray-600">
-                    Step {stepNumber}
+            <div className="bg-white rounded-lg shadow-md p-6 dark:bg-[#111827] border-gray-800 border-[1px]">
+              {/* Progress Bar */}
+              <div className="w-full bg-pink-50 rounded-full h-2.5 mb-4">
+                <div
+                  className="bg-pink-300 h-2.5 rounded-full"
+                  style={{ width: `${((step - 1) / 5) * 100}%` }}
+                ></div>
+              </div>
+              <div className="flex justify-between mb-8">
+                {[1, 2, 3, 4, 5].map((stepNumber) => (
+                  <div key={stepNumber} className="flex flex-col items-center">
+                    <motion.div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        step >= stepNumber
+                          ? "bg-pink-200 text-pink-700"
+                          : "bg-pink-50 text-gray-500"
+                      }`}
+                      animate={{
+                        scale: step === stepNumber ? 1.1 : 1,
+                        transition: { duration: 0.3 },
+                      }}
+                    >
+                      {step > stepNumber ? (
+                        <CheckCircle size={20} className="text-pink-700" />
+                      ) : (
+                        stepNumber
+                      )}
+                    </motion.div>
+                    <div className="text-xs mt-2 text-gray-600">
+                      Step {stepNumber}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+              <AnimatePresence mode="wait">{renderStep()}</AnimatePresence>
             </div>
-            <AnimatePresence mode="wait">{renderStep()}</AnimatePresence>
           </div>
-        </div>
+        </main>
       </div>
     </div>
   );

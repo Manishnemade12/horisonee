@@ -54,6 +54,8 @@ export function PeriodTracker() {
   const { isLoaded, isSignedIn } = useAuth();
   const { user } = useUser();
   const { width } = useScreenSize();
+  
+  const [sidebarVisible, setSidebarVisible] = useState(true);
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
@@ -228,7 +230,7 @@ export function PeriodTracker() {
         <div key={label} className="flex items-center">
           <div
             className={`w-8 h-8 flex items-center justify-center rounded-full font-bold text-sm
-              ${idx === step ? "bg-pink-500 text-white" : "bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300"}
+              ${idx === step ? "bg-pink-500 text-black" : "bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-black"}
             `}
           >
             {idx + 1}
@@ -250,17 +252,17 @@ export function PeriodTracker() {
         <div>
           <label className="block text-sm mb-1">Average Cycle Duration (days)</label>
           <input type="number" min="1" value={cycleDuration} onChange={e=>setCycleDuration(e.target.value)}
-            className="w-full px-4 py-2 rounded border focus:ring-2 focus:ring-pink-400"/>
+            className="w-full px-4 py-2 text-black rounded border focus:ring-2 focus:ring-pink-400"/>
         </div>
         <div>
           <label className="block text-sm mb-1">Last Period Start Date</label>
           <input type="date" value={lastPeriodStart} onChange={e=>setLastPeriodStart(e.target.value)}
-            className="w-full px-4 py-2 rounded border focus:ring-2 focus:ring-pink-400"/>
+            className="w-full px-4 py-2 text-black rounded border focus:ring-2 focus:ring-pink-400"/>
         </div>
         <div>
           <label className="block text-sm mb-1">Last Period Duration (days)</label>
           <input type="number" min="1" value={lastPeriodDuration} onChange={e=>setLastPeriodDuration(e.target.value)}
-            className="w-full px-4 py-2 rounded border focus:ring-2 focus:ring-pink-400"/>
+            className="w-full px-4 py-2 text-black rounded border focus:ring-2 focus:ring-pink-400"/>
         </div>
         {nextPeriodPrediction && (
           <div className="p-3 rounded bg-pink-50 dark:bg-pink-900/20 border border-pink-200 dark:border-pink-800 mt-2">
@@ -413,46 +415,79 @@ export function PeriodTracker() {
   const canSubmit = step === steps.length - 2;
 
   return (
-    <div className="flex min-h-screen bg-zinc-100 dark:bg-zinc-900 text-zinc-800 dark:text-zinc-100 transition-colors duration-300">
-      <SideBar sidebarVisible={width > 816} setSidebarVisible={()=>{}} activeLink={5} />
-      <main className="flex-1 flex flex-col items-center justify-center px-4 py-8">
-        <div className="w-full max-w-xl bg-white dark:bg-zinc-800 rounded-xl shadow-lg p-8">
-          <StepIndicator />
-          <AnimatePresence mode="wait">
-            {stepContent[step]}
-          </AnimatePresence>
-          <div className="flex justify-between mt-8">
-            <button
-              onClick={() => setStep((s) => Math.max(0, s - 1))}
-              disabled={!canGoBack}
-              className={`flex items-center gap-1 px-4 py-2 rounded font-medium border transition-colors
-                ${canGoBack
-                  ? "bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-300"
-                  : "bg-zinc-100 dark:bg-zinc-800 text-zinc-400 cursor-not-allowed"}
-              `}
-            >
-              <ChevronLeft className="w-4 h-4" /> Back
-            </button>
-            {canGoNext && (
-              <button
-                onClick={() => setStep((s) => Math.min(steps.length - 1, s + 1))}
-                className="flex items-center gap-1 px-4 py-2 rounded font-medium bg-pink-500 text-white hover:bg-pink-600 transition-colors"
-              >
-                Next <ChevronRight className="w-4 h-4" />
-              </button>
-            )}
-            {canSubmit && (
-              <button
-                onClick={handleSubmit}
-                disabled={submitting}
-                className="flex items-center gap-1 px-4 py-2 rounded font-medium bg-pink-500 text-white hover:bg-pink-600 transition-colors"
-              >
-                {submitting ? "Submitting..." : "Submit"}
-              </button>
-            )}
+    <div className="min-h-screen bg-zinc-100 dark:bg-zinc-900 text-zinc-800 dark:text-zinc-100 transition-colors duration-300">
+      {/* Sidebar - Fixed positioning */}
+      <SideBar
+        sidebarVisible={sidebarVisible}
+        setSidebarVisible={setSidebarVisible}
+        activeLink={5}
+      />
+      
+      {/* Main Content Area */}
+      <div className={`transition-all duration-300 ease-in-out min-h-screen ${
+        sidebarVisible && width > 816 ? "lg:ml-80" : "ml-0"
+      }`}>
+        {/* Top toggle button - only show on larger screens */}
+        {width > 816 && (
+          <button
+            onClick={() => setSidebarVisible(!sidebarVisible)}
+            className={`fixed left-4 z-40 p-3 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 rounded-full shadow-lg transition-all duration-300 ease-out hover:bg-white dark:hover:bg-gray-700 hover:shadow-xl hover:scale-110 ${
+              sidebarVisible ? 'ml-64' : 'ml-2'
+            }`}
+            style={{ top: '24px' }}
+            aria-label={sidebarVisible ? "Hide sidebar" : "Show sidebar"}
+          >
+            <ChevronRight
+              size={20}
+              className={`transition-transform duration-300 ${
+                sidebarVisible ? "rotate-180" : "rotate-0"
+              }`}
+            />
+          </button>
+        )}
+
+        {/* Main Content */}
+        <main className="relative">
+          <div className="max-w-4xl mx-auto px-6 py-8">
+            <div className="w-full bg-white dark:bg-zinc-800 rounded-xl shadow-lg p-8">
+              <StepIndicator />
+              <AnimatePresence mode="wait">
+                {stepContent[step]}
+              </AnimatePresence>
+              <div className="flex justify-between mt-8">
+                <button
+                  onClick={() => setStep((s) => Math.max(0, s - 1))}
+                  disabled={!canGoBack}
+                  className={`flex items-center gap-1 px-4 py-2 rounded font-medium border transition-colors
+                    ${canGoBack
+                      ? "bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-300"
+                      : "bg-zinc-100 dark:bg-zinc-800 text-zinc-400 cursor-not-allowed"}
+                  `}
+                >
+                  <ChevronLeft className="w-4 h-4" /> Back
+                </button>
+                {canGoNext && (
+                  <button
+                    onClick={() => setStep((s) => Math.min(steps.length - 1, s + 1))}
+                    className="flex items-center gap-1 px-4 py-2 rounded font-medium bg-pink-500 text-white hover:bg-pink-600 transition-colors"
+                  >
+                    Next <ChevronRight className="w-4 h-4" />
+                  </button>
+                )}
+                {canSubmit && (
+                  <button
+                    onClick={handleSubmit}
+                    disabled={submitting}
+                    className="flex items-center gap-1 px-4 py-2 rounded font-medium bg-pink-500 text-white hover:bg-pink-600 transition-colors"
+                  >
+                    {submitting ? "Submitting..." : "Submit"}
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 }
